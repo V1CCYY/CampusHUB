@@ -4,7 +4,6 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    # O Flask procura automaticamente na pasta 'templates'
     return render_template('HOME.html')
 
 @app.route('/login')
