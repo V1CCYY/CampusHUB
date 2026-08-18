@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo login-logo">
+                CAMPUS<span class="logo-white">.HUB</span>
+            </div>
+
+            <div class="login-tabs">
+                <div class="login-tab">Entrar</div>
+            </div>
+
+            <div class="login-field">
+                <label class="login-label">E-mail / Usuário</label>
+                <input type="text" placeholder="usuario@uniceub.br" class="login-input" />
+            </div>
+
+            <div class="login-field">
+                <label class="login-label">Senha</label>
+                <input type="password" placeholder="••••••••••••" class="login-input" />
+                <a href="#" class="login-forgot">Esqueceu a senha?</a>
+            </div>
+
+            <button class="btn-gradient login-btn">
+                Acessar Sistema
+            </button>
+
+            <hr class="login-divider" />
+
+            <div class="login-footer">
+                Não tem acesso? <a href="#">Solicite ao administrador</a>.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

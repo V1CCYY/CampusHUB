@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Gestão Acadêmica</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+</head>
+<body>
+    <div class="hero-container">
+        <canvas id="network-bg"></canvas>
+
+        <header class="header">
+            <div class="logo">
+                CAMPUS<span class="logo-white">.HUB</span>
+            </div>
+
+            <nav class="nav">
+                <a href="/recursos" class="nav-link">Recursos</a>
+                <a href="/login" class="btn-gradient">Acessar Painel</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <h1 class="title">
+                Gestão <br />
+                Acadêmica <br />
+                <span class="dim">Elevada ao</span> <br />
+                <span class="dim">Máximo.</span>
+            </h1>
+
+            <div>
+                <a href="/login" class="btn-gradient btn-hero">
+                    Iniciar Experiência
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Fundo de rede de partículas conectadas
+        const canvas = document.getElementById('network-bg');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles;
+
+        function resize() {
+            width = canvas.width = canvas.offsetWidth;
+            height = canvas.height = canvas.offsetHeight;
+        }
+
+        function init() {
+            resize();
+            const count = Math.floor((width * height) / 18000);
+            particles = Array.from({ length: count }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.25,
+                vy: (Math.random() - 0.5) * 0.25
+            }));
+        }
+
+        function step() {
+            ctx.clearRect(0, 0, width, height);
+
+            for (const p of particles) {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+            }
+
+            const maxDist = 140;
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const a = particles[i], b = particles[j];
+                    const dx = a.x - b.x, dy = a.y - b.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < maxDist) {
+                        ctx.strokeStyle = `rgba(56, 189, 248, ${0.18 * (1 - dist / maxDist)})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            for (const p of particles) {
+                ctx.fillStyle = 'rgba(148, 163, 184, 0.9)';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 1.6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        step();
+    </script>
+</body>
+</html>

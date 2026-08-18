@@ -1,0 +1,53 @@
+.hero-container {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #05070c;
+}
+
+#network-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+}
+
+.main-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 3rem 3rem 6rem;
+  min-height: 78vh;
+}
+
+.title {
+  font-size: 4.2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 3rem;
+  color: #fff;
+}
+
+.title .dim {
+  color: #6b7280;
+}
+
+.btn-hero {
+  font-size: 0.85rem;
+  padding: 1rem 2.4rem;
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 2.6rem;
+  }
+  .header {
+    padding: 1.2rem 1.5rem;
+  }
+  .main-content {
+    padding: 2rem 1.5rem 4rem;
+  }
+}

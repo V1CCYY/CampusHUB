@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Recursos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/recursos.css') }}">
+</head>
+<body>
+    <header class="recursos-header">
+        <div class="logo">
+            CAMPUS<span class="logo-white">.HUB</span>
+        </div>
+
+        <input type="text" class="search-input" placeholder="Pesquisar na tabela..." />
+
+        <a href="/login" class="btn-gradient">Acessar Painel</a>
+    </header>
+
+    <div class="recursos-container">
+        <h1 class="recursos-title">Recursos do Sistema</h1>
+
+        <div class="recursos-grid">
+            <div class="recurso-card">
+                <h3>Inventário de TI</h3>
+                <p>Gerenciamento completo de peças, periféricos, quantidades e locais com suporte a cadastro e edição.</p>
+            </div>
+            <div class="recurso-card">
+                <h3>Salas e Laboratórios</h3>
+                <p>Organização de ambientes, atribuição de responsáveis e mapeamento por blocos acadêmicos.</p>
+            </div>
+            <div class="recurso-card">
+                <h3>Requisições de Materiais</h3>
+                <p>Fluxo de pedidos pendentes feitos pelos laboratórios com ações rápidas de entrega.</p>
+            </div>
+            <div class="recurso-card">
+                <h3>Logs e Auditoria</h3>
+                <p>Rastreamento detalhado de ações e histórico de atividades realizadas pelos usuários.</p>
+            </div>
+            <div class="recurso-card">
+                <h3>Gestão de Usuários</h3>
+                <p>Controle de acesso à equipe, definição de cargos e níveis administrativos (como Programmer).</p>
+            </div>
+            <div class="recurso-card">
+                <h3>Backup de Dados</h3>
+                <p>Área restrita para exportação de dados e tabelas do estoque em formato SQL (.sql).</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
