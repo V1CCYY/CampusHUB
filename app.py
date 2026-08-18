@@ -15,5 +15,9 @@ def login():
 def recursos():
     return render_template('RECURSOS.html')
 
+@app.route('/painel')
+def painel():
+    return render_template('PAINEL.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
