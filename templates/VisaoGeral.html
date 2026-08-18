@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CampusHUB - Painel</title>
+    <title>CampusHUB - Visão Geral</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
 </head>
@@ -25,69 +25,7 @@
             <a href="#" class="sidebar-link">Backup</a>
         </aside>
 
-        <main class="painel-main">
-            <div class="painel-topbar">
-                <input type="text" class="search-input" placeholder="Pesquisar na tabela..." />
-                <div class="painel-admin">Administrador Root</div>
-            </div>
-
-            <div class="painel-content">
-                <h1 class="painel-title">Painel Geral de Hardware</h1>
-
-                <div class="stat-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Itens Cadastrados</div>
-                        <div class="stat-value">248</div>
-                    </div>
-                    <div class="stat-card critical">
-                        <div class="stat-label">Estoque Crítico (&lt; 3 un)</div>
-                        <div class="stat-value">4</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Saídas Hoje</div>
-                        <div class="stat-value">12</div>
-                    </div>
-                </div>
-
-                <div class="panel-card">
-                    <h2>Movimentações Recentes</h2>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Item / Peça</th>
-                                <th>Destino</th>
-                                <th>Horário</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>#MEM-08</td>
-                                <td>Memória RAM 8GB DDR4</td>
-                                <td>Lab de Informática 02</td>
-                                <td>Hoje, 14:30</td>
-                                <td><span class="badge ok">Disponível</span></td>
-                            </tr>
-                            <tr>
-                                <td>#SSD-24</td>
-                                <td>SSD 480GB SATA III</td>
-                                <td>Manutenção de PCs</td>
-                                <td>Hoje, 11:15</td>
-                                <td><span class="badge warn">Em Uso</span></td>
-                            </tr>
-                            <tr>
-                                <td>#CAB-02</td>
-                                <td>Cabo de Rede CAT6 (Caixa)</td>
-                                <td>Almoxarifado TI</td>
-                                <td>Ontem, 16:45</td>
-                                <td><span class="badge danger">Baixo (1 un.)</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+        <main class="painel-main"></main>
     </div>
 </body>
 </html>
