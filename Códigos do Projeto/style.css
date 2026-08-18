@@ -1,0 +1,153 @@
+.tela-home {
+    background: linear-gradient(0deg,
+            rgba(255, 255, 255, 1) 0%,
+            rgba(255, 255, 255, 1) 100%);
+    width: 100%;
+    min-width: 1920px;
+    min-height: 1080px;
+    display: flex;
+}
+
+.tela-home .frame {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    background-image: url(./img/vector-3.svg);
+    background-size: 100% 100%;
+}
+
+.tela-home .vector {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.tela-home .text-wrapper {
+    position: absolute;
+    width: 12.85%;
+    height: 4.67%;
+    top: 2.67%;
+    left: 7.99%;
+    font-family: "Poppins-Bold", Helvetica;
+    font-weight: 700;
+    color: #68a3e7;
+    font-size: 28px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.tela-home .div {
+    position: absolute;
+    width: 5.56%;
+    height: 2.56%;
+    top: 3.56%;
+    left: 69.44%;
+    font-family: "Poppins-Bold", Helvetica;
+    font-weight: 700;
+    color: #d4d4d4;
+    font-size: 15px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.tela-home .img {
+    width: 22.22%;
+    height: 97.78%;
+    top: 2.22%;
+    left: 77.78%;
+    position: absolute;
+}
+
+.tela-home .text-wrapper-2 {
+    position: absolute;
+    width: 8.13%;
+    height: 2.33%;
+    top: 3.43%;
+    left: 81.72%;
+    font-family: "Poppins-Bold", Helvetica;
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 14px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.tela-home .text-wrapper-3 {
+    position: absolute;
+    width: 22.36%;
+    height: 14.67%;
+    top: 23.56%;
+    left: 7.99%;
+    font-family: "Poppins-Bold", Helvetica;
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 88px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.tela-home .text-wrapper-4 {
+    position: absolute;
+    width: 36.39%;
+    height: 14.67%;
+    top: 34.67%;
+    left: 7.99%;
+    font-family: "Poppins-Bold", Helvetica;
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 88px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.tela-home .text-wrapper-5 {
+    position: absolute;
+    width: 34.51%;
+    height: 14.67%;
+    top: 45.78%;
+    left: 7.99%;
+    font-family: "Poppins-Bold", Helvetica;
+    font-weight: 700;
+    color: #dadada;
+    font-size: 88px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.tela-home .text-wrapper-6 {
+    position: absolute;
+    width: 27.29%;
+    height: 14.67%;
+    top: 56.89%;
+    left: 7.99%;
+    font-family: "Poppins-Bold", Helvetica;
+    font-weight: 700;
+    color: #e2e1e1;
+    font-size: 88px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.tela-home .vector-2 {
+    width: 92.01%;
+    height: 26.67%;
+    top: 73.33%;
+    left: 7.99%;
+    position: absolute;
+}
+
+.tela-home .text-wrapper-7 {
+    position: absolute;
+    width: 13.12%;
+    height: 3.00%;
+    top: 75.19%;
+    left: 13.07%;
+    font-family: "Poppins-Bold", Helvetica;
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 18px;
+    letter-spacing: 0;
+    line-height: normal;
+}
