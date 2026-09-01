@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Gerenciar Peça</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
+</head>
+<body>
+    <div class="painel-layout">
+        <aside class="sidebar">
+            <div class="logo">
+                CAMPUS<span class="logo-white">.HUB</span>
+            </div>
+
+            <a href="/visaogeral" class="sidebar-link">Visão Geral</a>
+            <a href="/inventario" class="sidebar-link active">Inventário TI</a>
+            <a href="/salas" class="sidebar-link">Salas / Labs</a>
+            <a href="/requisicoes" class="sidebar-link">Requisições</a>
+            <a href="/logs" class="sidebar-link">Logs de Acesso</a>
+
+            <div class="sidebar-section">ADMINISTRAÇÃO</div>
+            <a href="/usuarios" class="sidebar-link">Usuários</a>
+            <a href="/backup" class="sidebar-link">Backup</a>
+        </aside>
+
+        <main class="painel-main">
+            <div class="painel-topbar">
+                <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
+                <div class="painel-user"></div>
+            </div>
+
+            <div class="painel-content">
+                <h1 class="painel-page-title">Gerenciar Peça</h1>
+
+                <div class="panel-card">
+                    <div class="panel-card-title">Cadastrar / Editar Peça</div>
+                    <p class="panel-card-subtitle">Preencha os dados do item para inclusão ou atualização no estoque.</p>
+
+                    <form>
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label>Código</label>
+                                <input type="text" placeholder="Ex: #MOU-01">
+                            </div>
+                            <div class="form-field">
+                                <label>Quantidade</label>
+                                <input type="number" placeholder="0">
+                            </div>
+                            <div class="form-field full">
+                                <label>Descrição</label>
+                                <input type="text" placeholder="Ex: Mouse Óptico USB">
+                            </div>
+                            <div class="form-field full">
+                                <label>Local</label>
+                                <input type="text" placeholder="Ex: Prateleira A1">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="/inventario" class="btn-panel btn-panel-outline">Cancelar</a>
+                            <button type="submit" class="btn-panel btn-panel-primary">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+</body>
+</html>

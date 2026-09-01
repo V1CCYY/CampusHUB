@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CampusHUB - Visão Geral</title>
+    <title>CampusHUB - Requisições</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
 </head>
@@ -14,10 +14,10 @@
                 CAMPUS<span class="logo-white">.HUB</span>
             </div>
 
-            <a href="/visaogeral" class="sidebar-link active">Visão Geral</a>
+            <a href="/visaogeral" class="sidebar-link">Visão Geral</a>
             <a href="/inventario" class="sidebar-link">Inventário TI</a>
             <a href="/salas" class="sidebar-link">Salas / Labs</a>
-            <a href="/requisicoes" class="sidebar-link">Requisições</a>
+            <a href="/requisicoes" class="sidebar-link active">Requisições</a>
             <a href="/logs" class="sidebar-link">Logs de Acesso</a>
 
             <div class="sidebar-section">ADMINISTRAÇÃO</div>
@@ -32,38 +32,21 @@
             </div>
 
             <div class="painel-content">
-                <h1 class="painel-page-title">Painel Geral de Hardware</h1>
-
-                <div class="stat-grid">
-                    <div class="stat-card ok">
-                        <div class="stat-label">Itens Cadastrados</div>
-                        <div class="stat-value"></div>
-                    </div>
-                    <div class="stat-card warn">
-                        <div class="stat-label">Estoque Crítico (&lt; 3 un)</div>
-                        <div class="stat-value"></div>
-                    </div>
-                    <div class="stat-card ok">
-                        <div class="stat-label">Saídas Hoje</div>
-                        <div class="stat-value"></div>
-                    </div>
-                </div>
+                <h1 class="painel-page-title">Pedidos de Material Pendentes</h1>
 
                 <div class="panel-card">
-                    <div class="panel-card-title">Movimentações Recentes</div>
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Código</th>
-                                <th>Item / Peça</th>
-                                <th>Destino</th>
-                                <th>Horário</th>
-                                <th>Status</th>
+                                <th>Solicitante</th>
+                                <th>Item Pedido</th>
+                                <th>Motivo</th>
+                                <th>Ação</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
-                    <div class="panel-empty">Nenhuma movimentação registrada.</div>
+                    <div class="panel-empty">Nenhuma requisição pendente.</div>
                 </div>
             </div>
         </main>

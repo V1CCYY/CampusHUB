@@ -8,97 +8,202 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 </head>
 <body>
+    <header class="header header-fixed">
+        <div class="logo">
+            CAMPUS<span class="logo-white">.HUB</span>
+        </div>
+
+        <nav class="nav">
+            <a href="/recursos" class="nav-link">Recursos</a>
+            <a href="/sobrenos" class="nav-link">Sobre Nós</a>
+            <a href="/login" class="btn-gradient">Acessar Painel</a>
+        </nav>
+    </header>
+
     <div class="hero-container">
-        <canvas id="network-bg"></canvas>
-
-        <header class="header">
-            <div class="logo">
-                CAMPUS<span class="logo-white">.HUB</span>
-            </div>
-
-            <nav class="nav">
-                <a href="/recursos" class="nav-link">Recursos</a>
-                <a href="/login" class="btn-gradient">Acessar Painel</a>
-            </nav>
-        </header>
+        <div class="hero-bg"></div>
 
         <main class="main-content">
             <h1 class="title">
-                Gestão <br />
-                Acadêmica <br />
-                <span class="dim">Elevada ao</span> <br />
-                <span class="dim">Máximo.</span>
+                <span class="reveal-line">Gestão</span>
+                <span class="reveal-line">Acadêmica</span>
+                <span class="reveal-line dim">Elevada ao</span>
+                <span class="reveal-line dim">Máximo.</span>
             </h1>
 
-            <div>
+            <p class="hero-subtitle reveal-line">
+                Inventário digital centralizado e rastreamento em tempo real dos
+                equipamentos de TI da instituição — do cadastro à manutenção
+                preventiva, substituindo planilhas manuais e o "apagão tecnológico"
+                por controle de verdade.
+            </p>
+
+            <div class="reveal-line">
                 <a href="/login" class="btn-gradient btn-hero">
                     Iniciar Experiência
                 </a>
             </div>
         </main>
+
+        <a href="#recursos-preview" class="scroll-indicator" aria-label="Rolar para baixo">
+            <span class="scroll-indicator-label">Role para explorar</span>
+            <span class="scroll-indicator-pill"><span></span></span>
+        </a>
     </div>
 
-    <script>
-        const canvas = document.getElementById('network-bg');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles;
+    <section id="recursos-preview" class="section">
+        <h2 class="section-title reveal">O que o CampusHUB gerencia</h2>
+        <p class="section-subtitle reveal">
+            Do cadastro dos ativos de TI à manutenção preventiva, tudo centralizado
+            em um único painel — sem planilhas soltas e sem equipamento esquecido.
+        </p>
 
-        function resize() {
-            width = canvas.width = canvas.offsetWidth;
-            height = canvas.height = canvas.offsetHeight;
-        }
+        <div class="numbered-grid">
+            <div class="numbered-card reveal tilt-card">
+                <h3>Inventário Digital Centralizado</h3>
+                <p>Cadastro detalhado de computadores, projetores e demais ativos de TI da instituição, eliminando o esforço manual de controle por planilhas.</p>
+            </div>
+            <div class="numbered-card reveal tilt-card">
+                <h3>Rastreamento em Tempo Real</h3>
+                <p>Localização e estado de cada equipamento monitorados continuamente, reduzindo perdas e garantindo transparência patrimonial.</p>
+            </div>
+            <div class="numbered-card reveal tilt-card">
+                <h3>Manutenção Preventiva</h3>
+                <p>Registro de chamados, falhas recorrentes e trocas de peças, trocando a postura reativa de "apagar incêndio" por intervenções planejadas.</p>
+            </div>
+        </div>
 
-        function init() {
-            resize();
-            const count = Math.floor((width * height) / 18000);
-            particles = Array.from({ length: count }, () => ({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                vx: (Math.random() - 0.5) * 0.25,
-                vy: (Math.random() - 0.5) * 0.25
-            }));
-        }
+        <div class="section-cta reveal">
+            <a href="/recursos" class="text-link">Ver todos os recursos &rarr;</a>
+        </div>
+    </section>
 
-        function step() {
-            ctx.clearRect(0, 0, width, height);
+    <section id="como-funciona" class="section">
+        <h2 class="section-title reveal">Do cadastro à auditoria</h2>
+        <p class="section-subtitle reveal">
+            Quatro etapas simples que sustentam todo o fluxo do sistema.
+        </p>
 
-            for (const p of particles) {
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < 0 || p.x > width) p.vx *= -1;
-                if (p.y < 0 || p.y > height) p.vy *= -1;
-            }
+        <div class="process-list">
+            <div class="process-step reveal">
+                <span class="numbered-index">01</span>
+                <div>
+                    <h3>Cadastro</h3>
+                    <p>Equipamentos, salas e usuários entram no sistema com seus dados essenciais.</p>
+                </div>
+            </div>
+            <div class="process-step reveal">
+                <span class="numbered-index">02</span>
+                <div>
+                    <h3>Organização</h3>
+                    <p>Tudo é distribuído por blocos, ambientes e responsáveis.</p>
+                </div>
+            </div>
+            <div class="process-step reveal">
+                <span class="numbered-index">03</span>
+                <div>
+                    <h3>Requisição</h3>
+                    <p>Laboratórios solicitam a movimentação de equipamentos e acompanham o status do pedido.</p>
+                </div>
+            </div>
+            <div class="process-step reveal">
+                <span class="numbered-index">04</span>
+                <div>
+                    <h3>Auditoria</h3>
+                    <p>Cada ação fica registrada em logs para consulta e histórico.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            const maxDist = 140;
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const a = particles[i], b = particles[j];
-                    const dx = a.x - b.x, dy = a.y - b.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < maxDist) {
-                        ctx.strokeStyle = `rgba(56, 189, 248, ${0.18 * (1 - dist / maxDist)})`;
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(a.x, a.y);
-                        ctx.lineTo(b.x, b.y);
-                        ctx.stroke();
-                    }
-                }
-            }
+    <section id="quem-somos" class="section section-split">
+        <div class="reveal">
+            <h2 class="section-title">Feito para acabar com o apagão tecnológico</h2>
+            <p class="section-subtitle">
+                O CampusHUB nasceu para que a equipe de TI pare de "apagar incêndios"
+                e passe a fazer manutenção preventiva, mantendo salas de aula e
+                laboratórios sempre prontos para o ensino.
+            </p>
+            <a href="/sobrenos" class="text-link">Conhecer a equipe &rarr;</a>
+        </div>
 
-            for (const p of particles) {
-                ctx.fillStyle = 'rgba(148, 163, 184, 0.9)';
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 1.6, 0, Math.PI * 2);
-                ctx.fill();
-            }
+        <div class="tech-badges reveal">
+            <span class="tech-badge">Python</span>
+            <span class="tech-badge">Flask</span>
+            <span class="tech-badge">SQL</span>
+            <span class="tech-badge">Figma</span>
+            <span class="tech-badge">GitHub</span>
+        </div>
+    </section>
 
-            requestAnimationFrame(step);
-        }
+    <section id="faq" class="section">
+        <h2 class="section-title reveal">Clareza antes de começar</h2>
 
-        window.addEventListener('resize', init);
-        init();
-        step();
-    </script>
+        <div class="accordion reveal">
+            <div class="accordion-item">
+                <button class="accordion-trigger" type="button">
+                    <span>Como funciona o acesso ao sistema?</span>
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-panel">
+                    <p>Cada usuário acessa com login próprio, com permissões definidas pelo cargo dentro da instituição.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-trigger" type="button">
+                    <span>Funciona em qualquer dispositivo?</span>
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-panel">
+                    <p>Sim, o painel é responsivo e se adapta a computadores, tablets e celulares.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-trigger" type="button">
+                    <span>Os dados ficam seguros?</span>
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-panel">
+                    <p>Sim, o acesso é controlado por login e o histórico de ações fica registrado em logs de auditoria.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section cta-section reveal">
+        <h2 class="section-title">Pronto para simplificar sua gestão?</h2>
+        <p class="section-subtitle">Acesse o painel e veja o CampusHUB em ação.</p>
+        <a href="/login" class="btn-gradient btn-hero">Acessar Painel</a>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="logo">
+                    CAMPUS<span class="logo-white">.HUB</span>
+                </div>
+                <p>Inventário digital, rastreamento em tempo real e manutenção preventiva de TI para instituições de ensino.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Navegação</h4>
+                <a href="/">Início</a>
+                <a href="/recursos">Recursos</a>
+                <a href="/sobrenos">Sobre Nós</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Acesso</h4>
+                <a href="/login">Acessar Painel</a>
+                <a href="/visaogeral">Visão Geral</a>
+            </div>
+        </div>
+
+        <p class="footer-copy">&copy; 2026 CampusHUB. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 </body>
 </html>

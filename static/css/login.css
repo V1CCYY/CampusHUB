@@ -5,7 +5,7 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background: #05070c;
+  background: transparent;
 }
 
 .login-back {
@@ -27,7 +27,9 @@
 .login-card {
   position: relative;
   z-index: 10;
-  background: #0a0d13;
+  background: rgba(10, 13, 19, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   padding: 2.6rem 2.6rem 2.2rem;
   border-radius: 16px;
   text-align: center;
@@ -35,6 +37,26 @@
   max-width: 420px;
   border: 1px solid #171b23;
   box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.6);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.login-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 24px 70px -16px rgba(56, 189, 248, 0.2);
+}
+
+.login-card-anim {
+  opacity: 0;
+  transform: translateY(18px) scale(0.98);
+  animation: login-card-in 0.7s ease 0.1s forwards;
+}
+
+@keyframes login-card-in {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .login-logo {
@@ -85,8 +107,13 @@
   font-size: 0.9rem;
 }
 
+.login-input {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 .login-input:focus {
   border-color: #22d3ee;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
 }
 
 .login-forgot {
@@ -119,4 +146,12 @@
 .login-footer a {
   color: #38bdf8;
   text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-card-anim {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }

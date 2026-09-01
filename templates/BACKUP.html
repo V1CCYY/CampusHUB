@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Backup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
+</head>
+<body>
+    <div class="painel-layout">
+        <aside class="sidebar">
+            <div class="logo">
+                CAMPUS<span class="logo-white">.HUB</span>
+            </div>
+
+            <a href="/visaogeral" class="sidebar-link">Visão Geral</a>
+            <a href="/inventario" class="sidebar-link">Inventário TI</a>
+            <a href="/salas" class="sidebar-link">Salas / Labs</a>
+            <a href="/requisicoes" class="sidebar-link">Requisições</a>
+            <a href="/logs" class="sidebar-link">Logs de Acesso</a>
+
+            <div class="sidebar-section">ADMINISTRAÇÃO</div>
+            <a href="/usuarios" class="sidebar-link">Usuários</a>
+            <a href="/backup" class="sidebar-link active">Backup</a>
+        </aside>
+
+        <main class="painel-main">
+            <div class="painel-topbar">
+                <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
+                <div class="painel-user"></div>
+            </div>
+
+            <div class="painel-content">
+                <h1 class="painel-page-title">Backup do Banco de Dados</h1>
+
+                <div class="panel-card" style="text-align:center; padding: 3rem 2rem;">
+                    <div class="panel-card-title" style="margin-bottom:0.6rem;">Exportação de Dados (Área Restrita)</div>
+                    <p class="panel-card-subtitle" style="margin: 0 0 1.8rem;">
+                        Gera um arquivo contendo o backup de todas as tabelas e registros do estoque.
+                    </p>
+                    <button class="btn-panel btn-panel-primary">Baixar Backup (.sql)</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+</body>
+</html>

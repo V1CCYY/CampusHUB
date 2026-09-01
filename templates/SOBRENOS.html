@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Sobre Nós</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sobrenos.css') }}">
+</head>
+<body>
+    <header class="sobrenos-header">
+        <div class="header-group">
+            <a href="/" class="voltar-link">&larr; Voltar</a>
+            <div class="logo">
+                CAMPUS<span class="logo-white">.HUB</span>
+            </div>
+        </div>
+
+        <div class="header-group">
+            <a href="/recursos" class="nav-link">Recursos</a>
+            <a href="/login" class="btn-gradient">Acessar Painel</a>
+        </div>
+    </header>
+
+    <div class="sobrenos-container">
+        <h1 class="sobrenos-title reveal">Sobre Nós</h1>
+        <p class="sobrenos-lead reveal">
+            Somos uma equipe que enxergou de perto um problema comum às instituições
+            de ensino: laboratórios de informática que viram "cemitérios de
+            computadores" por falta de controle e de manutenção preventiva. O
+            CampusHUB nasceu para resolver exatamente isso — um "prontuário médico"
+            digital para cada equipamento de TI, que substitui planilhas manuais e a
+            postura reativa de "apagar incêndios" por uma gestão preventiva,
+            automatizada e centralizada.
+        </p>
+
+        <div class="sobrenos-grid">
+            <div class="sobrenos-card reveal tilt-card">
+                <h3>Nossa Missão</h3>
+                <p>
+                    Dar à equipe de TI das instituições de ensino um sistema simples
+                    para cadastrar, rastrear e cuidar de cada equipamento — reduzindo
+                    máquinas paradas, aulas interrompidas e desperdício de recursos.
+                </p>
+            </div>
+            <div class="sobrenos-card reveal tilt-card">
+                <h3>Nossa Visão</h3>
+                <p>
+                    Ser a ferramenta de referência para instituições que querem trocar
+                    o "apagão tecnológico" por laboratórios sempre disponíveis, com
+                    dados confiáveis para decidir onde investir e o que substituir.
+                </p>
+            </div>
+            <div class="sobrenos-card reveal tilt-card">
+                <h3>Nossos Valores</h3>
+                <p>
+                    Prevenção antes da urgência, transparência no uso de recursos
+                    públicos e privados, e o compromisso de que a tecnologia deve
+                    sempre estar a serviço do ensino — nunca no caminho dele.
+                </p>
+            </div>
+        </div>
+
+        <h2 class="sobrenos-title reveal team-title">Nossa Equipe</h2>
+        <p class="sobrenos-lead reveal">
+            O time por trás do CampusHUB. (Nomes provisórios — em breve atualizamos
+            com cada integrante.)
+        </p>
+
+        <div class="team-grid">
+            <div class="team-card reveal tilt-card">
+                <div class="team-avatar">Y</div>
+                <h3>Yago</h3>
+                <span class="team-role">Líder de Projeto</span>
+            </div>
+            <div class="team-card reveal tilt-card">
+                <div class="team-avatar">Y</div>
+                <h3>Yago</h3>
+                <span class="team-role">Desenvolvedor Backend</span>
+            </div>
+            <div class="team-card reveal tilt-card">
+                <div class="team-avatar">Y</div>
+                <h3>Yago</h3>
+                <span class="team-role">Desenvolvedor Frontend</span>
+            </div>
+            <div class="team-card reveal tilt-card">
+                <div class="team-avatar">Y</div>
+                <h3>Yago</h3>
+                <span class="team-role">UX/UI Designer</span>
+            </div>
+            <div class="team-card reveal tilt-card">
+                <div class="team-avatar">Y</div>
+                <h3>Yago</h3>
+                <span class="team-role">Analista de Requisitos</span>
+            </div>
+            <div class="team-card reveal tilt-card">
+                <div class="team-avatar">Y</div>
+                <h3>Yago</h3>
+                <span class="team-role">QA / Testes</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+</body>
+</html>

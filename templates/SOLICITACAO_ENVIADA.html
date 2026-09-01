@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Solicitação Enviada</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card login-card-anim access-card" style="text-align:center;">
+            <div class="access-success-icon">&check;</div>
+
+            <h2 style="color:#fff; font-size:1.3rem; margin-bottom:0.6rem;">Solicitação Enviada!</h2>
+            <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:1.6rem;">
+                Recebemos o seu pedido de acesso com sucesso.<br>
+                Entraremos em contato via e-mail em breve.
+            </p>
+
+            <div class="access-highlight" style="text-align:center;">
+                <a href="mailto:campushubti@gmail.com">campushubti@gmail.com</a>
+            </div>
+
+            <a href="/" class="btn-gradient login-btn">Voltar para o Início</a>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+</body>
+</html>

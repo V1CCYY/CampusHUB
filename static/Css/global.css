@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   background: #05070c;
@@ -73,4 +77,94 @@ a {
 .btn-gradient:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 24px -8px rgba(34, 211, 238, 0.5);
+}
+
+.voltar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.voltar-link:hover {
+  color: #fff;
+}
+
+#particles-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  display: block;
+  pointer-events: none;
+}
+
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 460px;
+  height: 460px;
+  margin-left: -230px;
+  margin-top: -230px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(56, 189, 248, 0.16) 0%,
+    rgba(34, 211, 238, 0.06) 45%,
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  mix-blend-mode: screen;
+  transition: opacity 0.35s ease;
+  will-change: transform;
+}
+
+@media (max-width: 720px) {
+  .cursor-glow {
+    display: none;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tilt-card {
+  transition: transform 0.25s ease, border-color 0.25s ease,
+    box-shadow 0.25s ease, background-color 0.25s ease;
+  will-change: transform;
+}
+
+.tilt-card:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 18px 40px -18px rgba(56, 189, 248, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .tilt-card {
+    transition: none !important;
+  }
+  .tilt-card:hover {
+    transform: none !important;
+  }
 }

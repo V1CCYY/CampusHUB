@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Solicitar Acesso</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <a href="/login" class="login-back">&larr; Voltar</a>
+
+        <div class="login-card login-card-anim access-card">
+            <div class="logo login-logo">
+                CAMPUS<span class="logo-white">.HUB</span>
+            </div>
+
+            <h2 style="color:#fff; font-size:1.15rem; margin-bottom:0.5rem;">Solicitar Acesso ao Sistema</h2>
+            <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:1.6rem;">
+                Envie uma mensagem ou utilize nosso canal oficial de suporte.
+            </p>
+
+            <div class="access-highlight">
+                <span>E-mail Oficial de Suporte</span>
+                <a href="mailto:campushubti@gmail.com">campushubti@gmail.com</a>
+            </div>
+
+            <form action="/solicitar-acesso/enviado" method="get">
+                <div class="login-field">
+                    <label class="login-label">Seu Nome / Setor</label>
+                    <input type="text" placeholder="Ex: João Silva - FaculdadeX" class="login-input" />
+                </div>
+
+                <div class="login-field">
+                    <label class="login-label">Motivo da Solicitação</label>
+                    <textarea placeholder="Descreva brevemente sua necessidade de acesso..." class="login-input" rows="3" style="resize:vertical;"></textarea>
+                </div>
+
+                <button type="submit" class="btn-gradient login-btn" style="border:none; cursor:pointer;">
+                    Enviar Solicitação
+                </button>
+            </form>
+
+            <div class="login-footer">
+                Retornaremos o contato em breve.
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+</body>
+</html>

@@ -11,7 +11,7 @@
     <div class="login-container">
         <a href="/" class="login-back">&larr; Voltar</a>
 
-        <div class="login-card">
+        <div class="login-card login-card-anim">
             <div class="logo login-logo">
                 CAMPUS<span class="logo-white">.HUB</span>
             </div>
@@ -28,7 +28,7 @@
             <div class="login-field">
                 <label class="login-label">Senha</label>
                 <input type="password" placeholder="••••••••••••" class="login-input" />
-                <a href="#" class="login-forgot">Esqueceu a senha?</a>
+                <a href="/solicitar-acesso" class="login-forgot">Esqueceu a senha?</a>
             </div>
 
             <a href="/visaogeral" class="btn-gradient login-btn">
@@ -38,9 +38,12 @@
             <hr class="login-divider" />
 
             <div class="login-footer">
-                Não tem acesso? <a href="#">Solicite ao administrador</a>.
+                Não tem acesso? <a href="/solicitar-acesso">Solicite ao administrador</a>.
             </div>
         </div>
     </div>
+
+    <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
 </body>
 </html>

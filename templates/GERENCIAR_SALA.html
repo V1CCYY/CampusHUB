@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Gerenciar Sala</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
+</head>
+<body>
+    <div class="painel-layout">
+        <aside class="sidebar">
+            <div class="logo">
+                CAMPUS<span class="logo-white">.HUB</span>
+            </div>
+
+            <a href="/visaogeral" class="sidebar-link">Visão Geral</a>
+            <a href="/inventario" class="sidebar-link">Inventário TI</a>
+            <a href="/salas" class="sidebar-link active">Salas / Labs</a>
+            <a href="/requisicoes" class="sidebar-link">Requisições</a>
+            <a href="/logs" class="sidebar-link">Logs de Acesso</a>
+
+            <div class="sidebar-section">ADMINISTRAÇÃO</div>
+            <a href="/usuarios" class="sidebar-link">Usuários</a>
+            <a href="/backup" class="sidebar-link">Backup</a>
+        </aside>
+
+        <main class="painel-main">
+            <div class="painel-topbar">
+                <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
+                <div class="painel-user"></div>
+            </div>
+
+            <div class="painel-content">
+                <h1 class="painel-page-title">Gerenciar Sala / Laboratório</h1>
+
+                <div class="panel-card">
+                    <div class="panel-card-title">Cadastrar / Editar Sala ou Lab</div>
+                    <p class="panel-card-subtitle">Informe o identificador, tipo e responsabilidade do ambiente.</p>
+
+                    <form>
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label>Nome / Identificador da Sala</label>
+                                <input type="text" placeholder="Ex: Laboratório 01 - Informática">
+                            </div>
+                            <div class="form-field">
+                                <label>Tipo de Ambiente</label>
+                                <input type="text" placeholder="Ex: Laboratório de Computação">
+                            </div>
+                            <div class="form-field full">
+                                <label>Bloco / Localização</label>
+                                <input type="text" placeholder="Ex: Bloco B - Térreo">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="/salas" class="btn-panel btn-panel-outline">Cancelar</a>
+                            <button type="submit" class="btn-panel btn-panel-primary">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+</body>
+</html>
