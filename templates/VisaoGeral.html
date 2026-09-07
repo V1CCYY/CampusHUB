@@ -20,15 +20,21 @@
             <a href="/requisicoes" class="sidebar-link">Requisições</a>
             <a href="/logs" class="sidebar-link">Logs de Acesso</a>
 
+            {% if logado_tipo == 'admin' %}
+
+
             <div class="sidebar-section">ADMINISTRAÇÃO</div>
             <a href="/usuarios" class="sidebar-link">Usuários</a>
             <a href="/backup" class="sidebar-link">Backup</a>
+
+
+            {% endif %}
         </aside>
 
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user"></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
             </div>
 
             <div class="painel-content">
@@ -37,15 +43,15 @@
                 <div class="stat-grid">
                     <div class="stat-card ok">
                         <div class="stat-label">Itens Cadastrados</div>
-                        <div class="stat-value"></div>
+                        <div class="stat-value">{{ itens_cadastrados }}</div>
                     </div>
                     <div class="stat-card warn">
                         <div class="stat-label">Estoque Crítico (&lt; 3 un)</div>
-                        <div class="stat-value"></div>
+                        <div class="stat-value">{{ estoque_critico }}</div>
                     </div>
                     <div class="stat-card ok">
                         <div class="stat-label">Saídas Hoje</div>
-                        <div class="stat-value"></div>
+                        <div class="stat-value">{{ saidas_hoje }}</div>
                     </div>
                 </div>
 
@@ -61,9 +67,21 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                            {% for m in movimentacoes %}
+                            <tr>
+                                <td>{{ m.codigo }}</td>
+                                <td>{{ m.descricao }}</td>
+                                <td>{{ m.destino or '-' }}</td>
+                                <td>{{ m.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ m.status }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
+                    {% if not movimentacoes %}
                     <div class="panel-empty">Nenhuma movimentação registrada.</div>
+                    {% endif %}
                 </div>
             </div>
         </main>

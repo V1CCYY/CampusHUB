@@ -20,20 +20,28 @@
                 <div class="login-tab">Entrar</div>
             </div>
 
-            <div class="login-field">
-                <label class="login-label">E-mail / Usuário</label>
-                <input type="text" placeholder="usuario@uniceub.br" class="login-input" />
-            </div>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <p style="color:#f87171; font-size:0.85rem; margin-bottom:1rem;">{{ messages[0] }}</p>
+                {% endif %}
+            {% endwith %}
 
-            <div class="login-field">
-                <label class="login-label">Senha</label>
-                <input type="password" placeholder="••••••••••••" class="login-input" />
-                <a href="/solicitar-acesso" class="login-forgot">Esqueceu a senha?</a>
-            </div>
+            <form method="post" action="/login">
+                <div class="login-field">
+                    <label class="login-label">Usuário</label>
+                    <input type="text" name="login" placeholder="Ex: admin" class="login-input" required />
+                </div>
 
-            <a href="/visaogeral" class="btn-gradient login-btn">
-                Acessar Sistema
-            </a>
+                <div class="login-field">
+                    <label class="login-label">Senha</label>
+                    <input type="password" name="senha" placeholder="••••••••••••" class="login-input" required />
+                    <a href="/solicitar-acesso" class="login-forgot">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" class="btn-gradient login-btn" style="border:none; cursor:pointer; width:100%;">
+                    Acessar Sistema
+                </button>
+            </form>
 
             <hr class="login-divider" />
 

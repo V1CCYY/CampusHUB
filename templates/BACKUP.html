@@ -20,15 +20,21 @@
             <a href="/requisicoes" class="sidebar-link">Requisições</a>
             <a href="/logs" class="sidebar-link">Logs de Acesso</a>
 
+            {% if logado_tipo == 'admin' %}
+
+
             <div class="sidebar-section">ADMINISTRAÇÃO</div>
             <a href="/usuarios" class="sidebar-link">Usuários</a>
             <a href="/backup" class="sidebar-link active">Backup</a>
+
+
+            {% endif %}
         </aside>
 
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user"></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
             </div>
 
             <div class="painel-content">
@@ -39,7 +45,7 @@
                     <p class="panel-card-subtitle" style="margin: 0 0 1.8rem;">
                         Gera um arquivo contendo o backup de todas as tabelas e registros do estoque.
                     </p>
-                    <button class="btn-panel btn-panel-primary">Baixar Backup (.sql)</button>
+                    <a href="/backup/download" class="btn-panel btn-panel-primary">Baixar Backup (.sql)</a>
                 </div>
             </div>
         </main>

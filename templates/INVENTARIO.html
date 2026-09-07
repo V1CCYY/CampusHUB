@@ -20,21 +20,29 @@
             <a href="/requisicoes" class="sidebar-link">Requisições</a>
             <a href="/logs" class="sidebar-link">Logs de Acesso</a>
 
+            {% if logado_tipo == 'admin' %}
+
+
             <div class="sidebar-section">ADMINISTRAÇÃO</div>
             <a href="/usuarios" class="sidebar-link">Usuários</a>
             <a href="/backup" class="sidebar-link">Backup</a>
+
+
+            {% endif %}
         </aside>
 
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user"></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
             </div>
 
             <div class="painel-content">
                 <div class="painel-page-head">
                     <h1 class="painel-page-title">Estoque de Peças e Periféricos</h1>
+                    {% if logado_tipo == 'admin' %}
                     <a href="/inventario/gerenciar" class="btn-panel btn-panel-primary">Cadastrar item</a>
+                    {% endif %}
                 </div>
 
                 <div class="panel-card">
@@ -48,9 +56,29 @@
                                 <th>Ação</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                            {% for item in itens %}
+                            <tr>
+                                <td>{{ item.codigo }}</td>
+                                <td>{{ item.descricao }}</td>
+                                <td>{{ item.quantidade }}{% if item.quantidade < 3 %} <span style="color:#f87171;">(crítico)</span>{% endif %}</td>
+                                <td>{{ item.local_estoque or '-' }}</td>
+                                <td>
+                                    {% if logado_tipo == 'admin' %}
+                                    <form method="post" action="/inventario/excluir/{{ item.id }}" style="display:inline;">
+                                        <button type="submit" class="btn-panel btn-panel-outline">Excluir</button>
+                                    </form>
+                                    {% else %}
+                                    &mdash;
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
+                    {% if not itens %}
                     <div class="panel-empty">Nenhum item cadastrado.</div>
+                    {% endif %}
                 </div>
             </div>
         </main>

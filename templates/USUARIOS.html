@@ -20,32 +20,101 @@
             <a href="/requisicoes" class="sidebar-link">Requisições</a>
             <a href="/logs" class="sidebar-link">Logs de Acesso</a>
 
+            {% if logado_tipo == 'admin' %}
+
+
             <div class="sidebar-section">ADMINISTRAÇÃO</div>
             <a href="/usuarios" class="sidebar-link active">Usuários</a>
             <a href="/backup" class="sidebar-link">Backup</a>
+
+
+            {% endif %}
         </aside>
 
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user"></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
             </div>
 
             <div class="painel-content">
                 <h1 class="painel-page-title">Equipe com Acesso ao Sistema</h1>
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <p style="color:#facc15; margin-bottom:1rem;">{{ messages[0] }}</p>
+                    {% endif %}
+                {% endwith %}
 
                 <div class="panel-card">
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Nome</th>
+                                <th>Login</th>
                                 <th>Cargo</th>
                                 <th>Função no Sistema</th>
+                                <th>Ação</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                            {% for u in equipe %}
+                            <tr>
+                                <td>{{ u.nome }}</td>
+                                <td>{{ u.login }}</td>
+                                <td>{{ u.cargo }}</td>
+                                <td>{{ 'Administrador' if u.tipo == 'admin' else 'Usuário' }}</td>
+                                <td>
+                                    {% if u.tipo != 'admin' %}
+                                    <form method="post" action="/usuarios/{{ u.id }}/excluir" style="display:inline;">
+                                        <button type="submit" class="btn-panel btn-panel-outline">Remover</button>
+                                    </form>
+                                    {% else %}
+                                    &mdash;
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
+                    {% if not equipe %}
                     <div class="panel-empty">Nenhum usuário cadastrado.</div>
+                    {% endif %}
+                </div>
+
+                <div class="panel-card">
+                    <div class="panel-card-title">Cadastrar Novo Usuário</div>
+                    <p class="panel-card-subtitle">
+                        Vagas restantes na sua equipe: {{ vagas_restantes }} de 4.
+                    </p>
+
+                    {% if vagas_restantes > 0 %}
+                    <form method="post" action="/usuarios">
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label>Nome</label>
+                                <input type="text" name="nome" placeholder="Ex: Maria Souza" required>
+                            </div>
+                            <div class="form-field">
+                                <label>Login</label>
+                                <input type="text" name="login" placeholder="Ex: maria.souza" required>
+                            </div>
+                            <div class="form-field">
+                                <label>Senha</label>
+                                <input type="password" name="senha" placeholder="Senha de acesso" required>
+                            </div>
+                            <div class="form-field">
+                                <label>Cargo</label>
+                                <input type="text" name="cargo" placeholder="Ex: Técnico de TI">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-panel btn-panel-primary">Cadastrar Usuário</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <p style="color:#94a3b8;">Limite de 4 usuários atingido para esta conta de administrador.</p>
+                    {% endif %}
                 </div>
             </div>
         </main>

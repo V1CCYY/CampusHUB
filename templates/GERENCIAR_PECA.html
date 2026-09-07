@@ -20,15 +20,21 @@
             <a href="/requisicoes" class="sidebar-link">Requisições</a>
             <a href="/logs" class="sidebar-link">Logs de Acesso</a>
 
+            {% if logado_tipo == 'admin' %}
+
+
             <div class="sidebar-section">ADMINISTRAÇÃO</div>
             <a href="/usuarios" class="sidebar-link">Usuários</a>
             <a href="/backup" class="sidebar-link">Backup</a>
+
+
+            {% endif %}
         </aside>
 
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user"></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
             </div>
 
             <div class="painel-content">
@@ -38,23 +44,23 @@
                     <div class="panel-card-title">Cadastrar / Editar Peça</div>
                     <p class="panel-card-subtitle">Preencha os dados do item para inclusão ou atualização no estoque.</p>
 
-                    <form>
+                    <form method="post" action="/inventario/gerenciar">
                         <div class="form-grid">
                             <div class="form-field">
                                 <label>Código</label>
-                                <input type="text" placeholder="Ex: #MOU-01">
+                                <input type="text" name="codigo" placeholder="Ex: MOU-01" required>
                             </div>
                             <div class="form-field">
                                 <label>Quantidade</label>
-                                <input type="number" placeholder="0">
+                                <input type="number" name="quantidade" placeholder="0" min="0" required>
                             </div>
                             <div class="form-field full">
                                 <label>Descrição</label>
-                                <input type="text" placeholder="Ex: Mouse Óptico USB">
+                                <input type="text" name="descricao" placeholder="Ex: Mouse Óptico USB" required>
                             </div>
                             <div class="form-field full">
                                 <label>Local</label>
-                                <input type="text" placeholder="Ex: Prateleira A1">
+                                <input type="text" name="local" placeholder="Ex: Prateleira A1">
                             </div>
                         </div>
 

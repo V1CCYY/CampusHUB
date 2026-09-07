@@ -20,15 +20,21 @@
             <a href="/requisicoes" class="sidebar-link">Requisições</a>
             <a href="/logs" class="sidebar-link">Logs de Acesso</a>
 
+            {% if logado_tipo == 'admin' %}
+
+
             <div class="sidebar-section">ADMINISTRAÇÃO</div>
             <a href="/usuarios" class="sidebar-link">Usuários</a>
             <a href="/backup" class="sidebar-link">Backup</a>
+
+
+            {% endif %}
         </aside>
 
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user"></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
             </div>
 
             <div class="painel-content">
@@ -38,19 +44,40 @@
                     <div class="panel-card-title">Cadastrar / Editar Sala ou Lab</div>
                     <p class="panel-card-subtitle">Informe o identificador, tipo e responsabilidade do ambiente.</p>
 
-                    <form>
+                    <form method="post" action="/salas/gerenciar">
                         <div class="form-grid">
                             <div class="form-field">
                                 <label>Nome / Identificador da Sala</label>
-                                <input type="text" placeholder="Ex: Laboratório 01 - Informática">
+                                <input type="text" name="nome" placeholder="Ex: Laboratório 01 - Informática" required>
                             </div>
                             <div class="form-field">
                                 <label>Tipo de Ambiente</label>
-                                <input type="text" placeholder="Ex: Laboratório de Computação">
+                                <input type="text" name="tipo" placeholder="Ex: Laboratório de Computação">
                             </div>
                             <div class="form-field full">
                                 <label>Bloco / Localização</label>
-                                <input type="text" placeholder="Ex: Bloco B - Térreo">
+                                <input type="text" name="bloco" placeholder="Ex: Bloco B - Térreo">
+                            </div>
+                            <div class="form-field">
+                                <label>Quantidade de Computadores</label>
+                                <input type="number" name="computadores" placeholder="0" min="0">
+                            </div>
+                            <div class="form-field">
+                                <label>Responsável</label>
+                                <select name="responsavel_id">
+                                    <option value="">Selecione...</option>
+                                    {% for membro in equipe %}
+                                    <option value="{{ membro.id }}">{{ membro.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label>Status</label>
+                                <select name="status">
+                                    <option value="Ativo">Ativo</option>
+                                    <option value="Manutenção">Manutenção</option>
+                                    <option value="Inativo">Inativo</option>
+                                </select>
                             </div>
                         </div>
 

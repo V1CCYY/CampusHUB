@@ -20,19 +20,44 @@
             <a href="/requisicoes" class="sidebar-link active">Requisições</a>
             <a href="/logs" class="sidebar-link">Logs de Acesso</a>
 
+            {% if logado_tipo == 'admin' %}
+
+
             <div class="sidebar-section">ADMINISTRAÇÃO</div>
             <a href="/usuarios" class="sidebar-link">Usuários</a>
             <a href="/backup" class="sidebar-link">Backup</a>
+
+
+            {% endif %}
         </aside>
 
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user"></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
             </div>
 
             <div class="painel-content">
-                <h1 class="painel-page-title">Pedidos de Material Pendentes</h1>
+                <h1 class="painel-page-title">Pedidos de Material</h1>
+
+                <div class="panel-card">
+                    <div class="panel-card-title">Nova Requisição</div>
+                    <form method="post" action="/requisicoes">
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label>Item Pedido</label>
+                                <input type="text" name="item_pedido" placeholder="Ex: Mouse Óptico USB" required>
+                            </div>
+                            <div class="form-field full">
+                                <label>Motivo</label>
+                                <input type="text" name="motivo" placeholder="Ex: Substituição de item danificado">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-panel btn-panel-primary">Enviar Requisição</button>
+                        </div>
+                    </form>
+                </div>
 
                 <div class="panel-card">
                     <table class="data-table">
@@ -41,12 +66,38 @@
                                 <th>Solicitante</th>
                                 <th>Item Pedido</th>
                                 <th>Motivo</th>
-                                <th>Ação</th>
+                                <th>Status</th>
+                                {% if logado_tipo == 'admin' %}<th>Ação</th>{% endif %}
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                            {% for r in requisicoes %}
+                            <tr>
+                                <td>{{ r.solicitante_nome }}</td>
+                                <td>{{ r.item_pedido }}</td>
+                                <td>{{ r.motivo or '-' }}</td>
+                                <td>{{ r.status }}</td>
+                                {% if logado_tipo == 'admin' %}
+                                <td>
+                                    {% if r.status == 'Pendente' %}
+                                    <form method="post" action="/requisicoes/{{ r.id }}/aprovar" style="display:inline;">
+                                        <button type="submit" class="btn-panel btn-panel-primary">Aprovar</button>
+                                    </form>
+                                    <form method="post" action="/requisicoes/{{ r.id }}/recusar" style="display:inline;">
+                                        <button type="submit" class="btn-panel btn-panel-outline">Recusar</button>
+                                    </form>
+                                    {% else %}
+                                    &mdash;
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
+                    {% if not requisicoes %}
                     <div class="panel-empty">Nenhuma requisição pendente.</div>
+                    {% endif %}
                 </div>
             </div>
         </main>

@@ -20,15 +20,21 @@
             <a href="/requisicoes" class="sidebar-link">Requisições</a>
             <a href="/logs" class="sidebar-link active">Logs de Acesso</a>
 
+            {% if logado_tipo == 'admin' %}
+
+
             <div class="sidebar-section">ADMINISTRAÇÃO</div>
             <a href="/usuarios" class="sidebar-link">Usuários</a>
             <a href="/backup" class="sidebar-link">Backup</a>
+
+
+            {% endif %}
         </aside>
 
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user"></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
             </div>
 
             <div class="painel-content">
@@ -43,9 +49,19 @@
                                 <th>Ação</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                            {% for l in logs %}
+                            <tr>
+                                <td>{{ l.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ l.usuario_nome or '-' }}</td>
+                                <td>{{ l.acao }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
+                    {% if not logs %}
                     <div class="panel-empty">Nenhum registro encontrado.</div>
+                    {% endif %}
                 </div>
             </div>
         </main>

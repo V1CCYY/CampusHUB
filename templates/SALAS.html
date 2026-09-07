@@ -20,21 +20,29 @@
             <a href="/requisicoes" class="sidebar-link">Requisições</a>
             <a href="/logs" class="sidebar-link">Logs de Acesso</a>
 
+            {% if logado_tipo == 'admin' %}
+
+
             <div class="sidebar-section">ADMINISTRAÇÃO</div>
             <a href="/usuarios" class="sidebar-link">Usuários</a>
             <a href="/backup" class="sidebar-link">Backup</a>
+
+
+            {% endif %}
         </aside>
 
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user"></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
             </div>
 
             <div class="painel-content">
                 <div class="painel-page-head">
                     <h1 class="painel-page-title">Laboratórios de Informática</h1>
+                    {% if logado_tipo == 'admin' %}
                     <a href="/salas/gerenciar" class="btn-panel btn-panel-primary">Cadastrar sala</a>
+                    {% endif %}
                 </div>
 
                 <div class="panel-card">
@@ -42,14 +50,27 @@
                         <thead>
                             <tr>
                                 <th>Laboratório</th>
+                                <th>Bloco</th>
                                 <th>Computadores</th>
                                 <th>Responsável</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                            {% for s in salas %}
+                            <tr>
+                                <td>{{ s.nome }}</td>
+                                <td>{{ s.bloco or '-' }}</td>
+                                <td>{{ s.computadores }}</td>
+                                <td>{{ s.responsavel_nome or '-' }}</td>
+                                <td>{{ s.status }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
+                    {% if not salas %}
                     <div class="panel-empty">Nenhuma sala cadastrada.</div>
+                    {% endif %}
                 </div>
             </div>
         </main>
