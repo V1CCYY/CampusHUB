@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusHUB - Salas / Labs</title>
@@ -8,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
     <div class="painel-layout">
         <aside class="sidebar">
             <div class="logo">
@@ -34,7 +37,7 @@
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:var(--text-muted);">Sair</a></div>
             </div>
 
             <div class="painel-content">
@@ -54,6 +57,7 @@
                                 <th>Computadores</th>
                                 <th>Responsável</th>
                                 <th>Status</th>
+                                <th>Ação</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -64,6 +68,18 @@
                                 <td>{{ s.computadores }}</td>
                                 <td>{{ s.responsavel_nome or '-' }}</td>
                                 <td>{{ s.status }}</td>
+                                <td>
+                                    {% if logado_tipo == 'admin' %}
+                                    <div class="table-actions">
+                                        <a href="/salas/editar/{{ s.id }}" class="btn-panel btn-panel-outline btn-panel-sm">Editar</a>
+                                        <form method="post" action="/salas/excluir/{{ s.id }}" style="display:inline;" class="confirm-delete" data-confirm="Você deseja apagar a sala {{ s.nome }}?">
+                                            <button type="submit" class="btn-panel btn-panel-outline btn-panel-sm">Excluir</button>
+                                        </form>
+                                    </div>
+                                    {% else %}
+                                    &mdash;
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -78,5 +94,15 @@
 
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+        document.querySelectorAll('.confirm-delete').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                if (!confirm(form.dataset.confirm)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

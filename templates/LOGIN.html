@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusHUB - Login</title>
@@ -8,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
     <div class="login-container">
         <a href="/" class="login-back">&larr; Voltar</a>
 
@@ -28,12 +31,12 @@
 
             <form method="post" action="/login">
                 <div class="login-field">
-                    <label class="login-label">Usuário</label>
+                    <label class="login-label">Usuário *</label>
                     <input type="text" name="login" placeholder="Ex: admin" class="login-input" required />
                 </div>
 
                 <div class="login-field">
-                    <label class="login-label">Senha</label>
+                    <label class="login-label">Senha *</label>
                     <input type="password" name="senha" placeholder="••••••••••••" class="login-input" required />
                     <a href="/solicitar-acesso" class="login-forgot">Esqueceu a senha?</a>
                 </div>
@@ -53,5 +56,6 @@
 
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>

@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CampusHUB - Gerenciar Peça</title>
+    <title>CampusHUB - {% if peca %}Editar Peça{% else %}Gerenciar Peça{% endif %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
     <div class="painel-layout">
         <aside class="sidebar">
             <div class="logo">
@@ -34,33 +37,33 @@
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:var(--text-muted);">Sair</a></div>
             </div>
 
             <div class="painel-content">
-                <h1 class="painel-page-title">Gerenciar Peça</h1>
+                <h1 class="painel-page-title">{% if peca %}Editar Peça{% else %}Gerenciar Peça{% endif %}</h1>
 
                 <div class="panel-card">
                     <div class="panel-card-title">Cadastrar / Editar Peça</div>
                     <p class="panel-card-subtitle">Preencha os dados do item para inclusão ou atualização no estoque.</p>
 
-                    <form method="post" action="/inventario/gerenciar">
+                    <form method="post" action="{% if peca %}/inventario/editar/{{ peca.id }}{% else %}/inventario/gerenciar{% endif %}">
                         <div class="form-grid">
                             <div class="form-field">
                                 <label>Código</label>
-                                <input type="text" name="codigo" placeholder="Ex: MOU-01" required>
+                                <input type="text" name="codigo" placeholder="Ex: MOU-01" value="{{ peca.codigo if peca else '' }}" required>
                             </div>
                             <div class="form-field">
                                 <label>Quantidade</label>
-                                <input type="number" name="quantidade" placeholder="0" min="0" required>
+                                <input type="number" name="quantidade" placeholder="0" min="0" value="{{ peca.quantidade if peca else '' }}" required>
                             </div>
                             <div class="form-field full">
                                 <label>Descrição</label>
-                                <input type="text" name="descricao" placeholder="Ex: Mouse Óptico USB" required>
+                                <input type="text" name="descricao" placeholder="Ex: Mouse Óptico USB" value="{{ peca.descricao if peca else '' }}" required>
                             </div>
                             <div class="form-field full">
                                 <label>Local</label>
-                                <input type="text" name="local" placeholder="Ex: Prateleira A1">
+                                <input type="text" name="local" placeholder="Ex: Prateleira A1" value="{{ peca.local_estoque if peca else '' }}">
                             </div>
                         </div>
 
@@ -76,5 +79,6 @@
 
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>

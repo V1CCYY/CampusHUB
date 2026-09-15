@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Redefinir Senha</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
+</head>
+<body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
+    <div class="painel-layout">
+        <aside class="sidebar">
+            <div class="logo">
+                CAMPUS<span class="logo-white">.HUB</span>
+            </div>
+
+            <a href="/visaogeral" class="sidebar-link">Visão Geral</a>
+            <a href="/inventario" class="sidebar-link">Inventário TI</a>
+            <a href="/salas" class="sidebar-link">Salas / Labs</a>
+            <a href="/requisicoes" class="sidebar-link">Requisições</a>
+            <a href="/logs" class="sidebar-link">Logs de Acesso</a>
+
+            {% if logado_tipo == 'admin' %}
+
+
+            <div class="sidebar-section">ADMINISTRAÇÃO</div>
+            <a href="/usuarios" class="sidebar-link active">Usuários</a>
+            <a href="/backup" class="sidebar-link">Backup</a>
+
+
+            {% endif %}
+        </aside>
+
+        <main class="painel-main">
+            <div class="painel-topbar">
+                <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:var(--text-muted);">Sair</a></div>
+            </div>
+
+            <div class="painel-content">
+                <h1 class="painel-page-title">Redefinir Senha</h1>
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <p style="color:#facc15; margin-bottom:1rem;">{{ messages[0] }}</p>
+                    {% endif %}
+                {% endwith %}
+
+                <div class="panel-card">
+                    <div class="panel-card-title">{{ usuario.nome }} ({{ usuario.login }})</div>
+                    <p class="panel-card-subtitle">
+                        Por segurança, as senhas ficam armazenadas de forma criptografada e não podem ser exibidas.
+                        Defina uma nova senha abaixo para entregar ao usuário.
+                    </p>
+
+                    <form method="post" action="/usuarios/{{ usuario.id }}/senha">
+                        <div class="form-grid">
+                            <div class="form-field full">
+                                <label>Nova Senha *</label>
+                                <input type="text" name="senha" placeholder="Digite a nova senha" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <a href="/usuarios" class="btn-panel btn-panel-outline">Cancelar</a>
+                            <button type="submit" class="btn-panel btn-panel-primary">Salvar Nova Senha</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</body>
+</html>

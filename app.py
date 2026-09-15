@@ -1,5 +1,6 @@
 from functools import wraps
 from datetime import datetime
+import re
 
 from flask import (
     Flask, render_template, request, redirect,
@@ -34,13 +35,6 @@ def admin_required(view):
     return wrapped
 
 def admin_scope_id():
-    """
-    ID do administrador "dono" do time do usuário logado.
-    - Se quem está logado é admin -> o próprio id.
-    - Se é um usuário comum -> o id de quem o criou (seu admin).
-    Isso é o que garante que cada admin (e os até 4 usuários que ele
-    criou) só enxergue e mexa nos dados do próprio time.
-    """
     if session.get("tipo") == "admin":
         return session["user_id"]
     return session.get("criado_por")
@@ -58,6 +52,7 @@ def inject_user():
         "logado_nome": session.get("nome"),
         "logado_tipo": session.get("tipo"),
         "logado_cargo": session.get("cargo"),
+        "logado_id": session.get("user_id"),
     }
 
 @app.route("/")
@@ -103,6 +98,10 @@ def recursos():
 @app.route("/sobrenos")
 def sobrenos():
     return render_template("SOBRENOS.html")
+
+@app.route("/mapa-sistema")
+def mapa_sistema():
+    return render_template("MAPA_SISTEMA.html")
 
 @app.route("/solicitar-acesso")
 def solicitar_acesso():
@@ -180,7 +179,37 @@ def inventario_gerenciar():
         flash("Peça cadastrada com sucesso.")
         return redirect(url_for("inventario"))
 
-    return render_template("GERENCIAR_PECA.html")
+    return render_template("GERENCIAR_PECA.html", peca=None)
+
+@app.route("/inventario/editar/<int:peca_id>", methods=["GET", "POST"])
+@admin_required
+def inventario_editar(peca_id):
+    admin_id = admin_scope_id()
+    peca = db.query(
+        "SELECT * FROM pecas WHERE id = %s AND criado_por = %s",
+        (peca_id, admin_id), fetchone=True
+    )
+    if not peca:
+        flash("Peça não encontrada.")
+        return redirect(url_for("inventario"))
+
+    if request.method == "POST":
+        codigo = request.form.get("codigo", "").strip()
+        descricao = request.form.get("descricao", "").strip()
+        quantidade = request.form.get("quantidade", "0") or "0"
+        local_estoque = request.form.get("local", "").strip()
+
+        db.query(
+            """UPDATE pecas SET codigo = %s, descricao = %s, quantidade = %s, local_estoque = %s
+               WHERE id = %s AND criado_por = %s""",
+            (codigo, descricao, quantidade, local_estoque, peca_id, admin_id),
+            commit=True,
+        )
+        registrar_log(f"Peça '{descricao}' ({codigo}) editada.")
+        flash("Peça atualizada com sucesso.")
+        return redirect(url_for("inventario"))
+
+    return render_template("GERENCIAR_PECA.html", peca=peca)
 
 @app.route("/inventario/excluir/<int:peca_id>", methods=["POST"])
 @admin_required
@@ -233,16 +262,109 @@ def salas_gerenciar():
         flash("Sala cadastrada com sucesso.")
         return redirect(url_for("salas"))
 
-    return render_template("GERENCIAR_SALA.html", equipe=equipe)
+    return render_template("GERENCIAR_SALA.html", equipe=equipe, sala=None)
+
+@app.route("/salas/editar/<int:sala_id>", methods=["GET", "POST"])
+@admin_required
+def salas_editar(sala_id):
+    admin_id = admin_scope_id()
+    sala = db.query(
+        "SELECT * FROM salas WHERE id = %s AND criado_por = %s",
+        (sala_id, admin_id), fetchone=True
+    )
+    if not sala:
+        flash("Sala não encontrada.")
+        return redirect(url_for("salas"))
+
+    equipe = db.query(
+        "SELECT id, nome FROM usuarios WHERE id = %s OR criado_por = %s ORDER BY nome",
+        (admin_id, admin_id)
+    )
+
+    if request.method == "POST":
+        nome = request.form.get("nome", "").strip()
+        tipo = request.form.get("tipo", "").strip()
+        bloco = request.form.get("bloco", "").strip()
+        computadores = request.form.get("computadores", "0") or "0"
+        responsavel_id = request.form.get("responsavel_id") or None
+        status = request.form.get("status", "Ativo")
+
+        db.query(
+            """UPDATE salas SET nome = %s, tipo = %s, bloco = %s, computadores = %s,
+               responsavel_id = %s, status = %s WHERE id = %s AND criado_por = %s""",
+            (nome, tipo, bloco, computadores, responsavel_id, status, sala_id, admin_id),
+            commit=True,
+        )
+        registrar_log(f"Sala '{nome}' editada.")
+        flash("Sala atualizada com sucesso.")
+        return redirect(url_for("salas"))
+
+    return render_template("GERENCIAR_SALA.html", equipe=equipe, sala=sala)
+
+@app.route("/salas/excluir/<int:sala_id>", methods=["POST"])
+@admin_required
+def salas_excluir(sala_id):
+    db.query(
+        "DELETE FROM salas WHERE id = %s AND criado_por = %s",
+        (sala_id, admin_scope_id()), commit=True
+    )
+    registrar_log(f"Sala #{sala_id} excluída.")
+    return redirect(url_for("salas"))
+
+def coletar_itens_selecionados(pecas):
+    itens = []
+    for peca in pecas:
+        bruto = request.form.get(f"qtd_{peca['id']}", "0").strip()
+        try:
+            qtd = int(bruto) if bruto else 0
+        except ValueError:
+            qtd = 0
+        if qtd > 0:
+            itens.append({
+                "peca_id": peca["id"], "quantidade": qtd,
+                "descricao": peca["descricao"], "codigo": peca["codigo"],
+            })
+    return itens
+
+def montar_item_pedido(itens, outro_item):
+    partes = [f"{i['quantidade']}x {i['descricao']} ({i['codigo']})" for i in itens]
+    if outro_item:
+        partes.append(outro_item)
+    return ", ".join(partes)
+
+def extrair_itens_do_pedido(item_pedido, pecas):
+    pecas_por_codigo = {p["codigo"]: p for p in pecas}
+    itens = []
+    for qtd_texto, codigo in re.findall(r"(\d+)x\s+.+?\s+\(([^)]+)\)", item_pedido):
+        peca = pecas_por_codigo.get(codigo)
+        if peca:
+            itens.append({
+                "peca_id": peca["id"], "quantidade": int(qtd_texto),
+                "descricao": peca["descricao"], "codigo": codigo,
+                "estoque_atual": peca["quantidade"],
+            })
+    return itens
 
 @app.route("/requisicoes", methods=["GET", "POST"])
 @login_required
 def requisicoes():
     admin_id = admin_scope_id()
+    pecas = db.query(
+        "SELECT id, codigo, descricao, quantidade FROM pecas WHERE criado_por = %s ORDER BY descricao",
+        (admin_id,)
+    )
 
     if request.method == "POST":
-        item_pedido = request.form.get("item_pedido", "").strip()
+        outro_item = request.form.get("item_pedido", "").strip()
         motivo = request.form.get("motivo", "").strip()
+        itens_selecionados = coletar_itens_selecionados(pecas)
+
+        if not itens_selecionados and not outro_item:
+            flash("Selecione ao menos um item do estoque ou descreva o item desejado.")
+            return redirect(url_for("requisicoes"))
+
+        item_pedido = montar_item_pedido(itens_selecionados, outro_item)
+
         db.query(
             """INSERT INTO requisicoes (solicitante_id, item_pedido, motivo)
                VALUES (%s, %s, %s)""",
@@ -260,12 +382,124 @@ def requisicoes():
            ORDER BY r.data_solicitacao DESC""",
         (admin_id, admin_id)
     )
-    return render_template("REQUISICOES.html", requisicoes=lista)
+
+    return render_template("REQUISICOES.html", requisicoes=lista, pecas=pecas)
+
+@app.route("/requisicoes/<int:req_id>/editar", methods=["GET", "POST"])
+@login_required
+def requisicoes_editar(req_id):
+    admin_id = admin_scope_id()
+    requisicao = db.query(
+        """SELECT r.*, u.nome AS solicitante_nome, u.id AS solicitante_uid, u.criado_por AS solicitante_admin
+           FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
+           WHERE r.id = %s""",
+        (req_id,), fetchone=True
+    )
+
+    if not requisicao or (requisicao["solicitante_uid"] != admin_id and requisicao["solicitante_admin"] != admin_id):
+        flash("Requisição não encontrada.")
+        return redirect(url_for("requisicoes"))
+
+    if requisicao["status"] != "Pendente":
+        flash("Só é possível editar requisições pendentes.")
+        return redirect(url_for("requisicoes"))
+
+    pode_editar = session.get("tipo") == "admin" or requisicao["solicitante_id"] == session["user_id"]
+    if not pode_editar:
+        flash("Você não tem permissão para editar esta requisição.")
+        return redirect(url_for("requisicoes"))
+
+    pecas = db.query(
+        "SELECT id, codigo, descricao, quantidade FROM pecas WHERE criado_por = %s ORDER BY descricao",
+        (admin_id,)
+    )
+    quantidades_atuais = {
+        item["peca_id"]: item["quantidade"]
+        for item in extrair_itens_do_pedido(requisicao["item_pedido"], pecas)
+    }
+
+    if request.method == "POST":
+        outro_item = request.form.get("item_pedido", "").strip()
+        motivo = request.form.get("motivo", "").strip()
+        itens_selecionados = coletar_itens_selecionados(pecas)
+
+        if not itens_selecionados and not outro_item:
+            flash("Selecione ao menos um item do estoque ou descreva o item desejado.")
+            return redirect(url_for("requisicoes_editar", req_id=req_id))
+
+        item_pedido = montar_item_pedido(itens_selecionados, outro_item)
+
+        db.query(
+            "UPDATE requisicoes SET item_pedido = %s, motivo = %s WHERE id = %s",
+            (item_pedido, motivo, req_id), commit=True
+        )
+        registrar_log(f"Requisição #{req_id} editada.")
+        flash("Requisição atualizada com sucesso.")
+        return redirect(url_for("requisicoes"))
+
+    return render_template(
+        "EDITAR_REQUISICAO.html",
+        requisicao=requisicao,
+        pecas=pecas,
+        quantidades_atuais=quantidades_atuais,
+    )
+
+@app.route("/requisicoes/<int:req_id>/excluir", methods=["POST"])
+@admin_required
+def requisicoes_excluir(req_id):
+    admin_id = admin_scope_id()
+    requisicao = db.query(
+        """SELECT r.* FROM requisicoes r
+           JOIN usuarios u ON u.id = r.solicitante_id
+           WHERE r.id = %s AND (u.id = %s OR u.criado_por = %s)""",
+        (req_id, admin_id, admin_id), fetchone=True
+    )
+    if not requisicao:
+        flash("Requisição não encontrada.")
+        return redirect(url_for("requisicoes"))
+
+    db.query("DELETE FROM requisicoes WHERE id = %s", (req_id,), commit=True)
+    registrar_log(f"Requisição #{req_id} excluída.")
+    flash("Requisição excluída com sucesso.")
+    return redirect(url_for("requisicoes"))
 
 @app.route("/requisicoes/<int:req_id>/<acao>", methods=["POST"])
 @admin_required
 def requisicoes_avaliar(req_id, acao):
-    novo_status = "Aprovado" if acao == "aprovar" else "Recusado"
+    admin_id = admin_scope_id()
+    requisicao = db.query(
+        "SELECT * FROM requisicoes WHERE id = %s", (req_id,), fetchone=True
+    )
+    if not requisicao or requisicao["status"] != "Pendente":
+        flash("Esta requisição já foi avaliada.")
+        return redirect(url_for("requisicoes"))
+
+    if acao == "aprovar":
+        pecas = db.query(
+            "SELECT id, codigo, descricao, quantidade FROM pecas WHERE criado_por = %s",
+            (admin_id,)
+        )
+        itens = extrair_itens_do_pedido(requisicao["item_pedido"], pecas)
+
+        for item in itens:
+            if item["quantidade"] > item["estoque_atual"]:
+                flash(f"Estoque insuficiente de '{item['descricao']}' para aprovar esta requisição.")
+                return redirect(url_for("requisicoes"))
+
+        for item in itens:
+            db.query(
+                "UPDATE pecas SET quantidade = quantidade - %s WHERE id = %s",
+                (item["quantidade"], item["peca_id"]), commit=True
+            )
+            db.query(
+                "INSERT INTO movimentacoes (peca_id, destino, status) VALUES (%s, %s, 'Concluído')",
+                (item["peca_id"], f"{item['quantidade']}x - Requisição #{req_id}"), commit=True
+            )
+
+        novo_status = "Aprovado"
+    else:
+        novo_status = "Recusado"
+
     db.query(
         "UPDATE requisicoes SET status = %s WHERE id = %s",
         (novo_status, req_id), commit=True
@@ -335,6 +569,41 @@ def usuarios():
 
     return render_template("USUARIOS.html", equipe=equipe, vagas_restantes=vagas_restantes)
 
+@app.route("/usuarios/<int:usuario_id>/editar", methods=["GET", "POST"])
+@admin_required
+def usuarios_editar(usuario_id):
+    admin_id = session["user_id"]
+    usuario = db.query(
+        "SELECT * FROM usuarios WHERE id = %s AND (id = %s OR criado_por = %s)",
+        (usuario_id, admin_id, admin_id), fetchone=True
+    )
+    if not usuario:
+        flash("Usuário não encontrado.")
+        return redirect(url_for("usuarios"))
+
+    if request.method == "POST":
+        nome = request.form.get("nome", "").strip()
+        login_novo = request.form.get("login", "").strip()
+        cargo = request.form.get("cargo", "").strip()
+
+        existente = db.query(
+            "SELECT id FROM usuarios WHERE login = %s AND id != %s",
+            (login_novo, usuario_id), fetchone=True
+        )
+        if existente:
+            flash("Já existe um usuário com esse login.")
+            return redirect(url_for("usuarios_editar", usuario_id=usuario_id))
+
+        db.query(
+            "UPDATE usuarios SET nome = %s, login = %s, cargo = %s WHERE id = %s",
+            (nome, login_novo, cargo, usuario_id), commit=True
+        )
+        registrar_log(f"Usuário '{nome}' ({login_novo}) editado.")
+        flash("Usuário atualizado com sucesso.")
+        return redirect(url_for("usuarios"))
+
+    return render_template("USUARIOS_EDITAR.html", usuario=usuario)
+
 @app.route("/usuarios/<int:usuario_id>/excluir", methods=["POST"])
 @admin_required
 def usuarios_excluir(usuario_id):
@@ -344,6 +613,35 @@ def usuarios_excluir(usuario_id):
     )
     registrar_log(f"Usuário #{usuario_id} removido.")
     return redirect(url_for("usuarios"))
+
+@app.route("/usuarios/<int:usuario_id>/senha", methods=["GET", "POST"])
+@admin_required
+def usuarios_senha(usuario_id):
+    admin_id = session["user_id"]
+    usuario = db.query(
+        "SELECT * FROM usuarios WHERE id = %s AND (id = %s OR criado_por = %s)",
+        (usuario_id, admin_id, admin_id), fetchone=True
+    )
+    if not usuario:
+        flash("Usuário não encontrado.")
+        return redirect(url_for("usuarios"))
+
+    if request.method == "POST":
+        nova_senha = request.form.get("senha", "").strip()
+        if not nova_senha:
+            flash("Informe uma senha.")
+            return redirect(url_for("usuarios_senha", usuario_id=usuario_id))
+
+        senha_hash = generate_password_hash(nova_senha)
+        db.query(
+            "UPDATE usuarios SET senha_hash = %s WHERE id = %s",
+            (senha_hash, usuario_id), commit=True
+        )
+        registrar_log(f"Senha do usuário '{usuario['nome']}' redefinida.")
+        flash(f"Senha de {usuario['nome']} redefinida para: {nova_senha}")
+        return redirect(url_for("usuarios"))
+
+    return render_template("USUARIOS_SENHA.html", usuario=usuario)
 
 @app.route("/backup")
 @admin_required

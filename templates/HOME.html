@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusHUB - Gestão Acadêmica</title>
@@ -8,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
     <header class="header header-fixed">
         <div class="logo">
             CAMPUS<span class="logo-white">.HUB</span>
@@ -16,6 +19,7 @@
         <nav class="nav">
             <a href="/recursos" class="nav-link">Recursos</a>
             <a href="/sobrenos" class="nav-link">Sobre Nós</a>
+            <a href="/mapa-sistema" class="nav-link">Mapa do Sistema</a>
             <a href="/login" class="btn-gradient">Acessar Painel</a>
         </nav>
     </header>
@@ -205,5 +209,6 @@
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>

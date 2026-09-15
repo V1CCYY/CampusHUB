@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusHUB - Sobre Nós</title>
@@ -8,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/sobrenos.css') }}">
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
     <header class="sobrenos-header">
         <div class="header-group">
             <a href="/" class="voltar-link">&larr; Voltar</a>
@@ -69,39 +72,34 @@
 
         <div class="team-grid">
             <div class="team-card reveal tilt-card">
-                <div class="team-avatar">Y</div>
-                <h3>Yago</h3>
-                <span class="team-role">Líder de Projeto</span>
+                <h3>Yago Vieira</h3>
+                <span class="team-role">Desenvolvedor</span>
             </div>
             <div class="team-card reveal tilt-card">
-                <div class="team-avatar">Y</div>
-                <h3>Yago</h3>
-                <span class="team-role">Desenvolvedor Backend</span>
+                <h3>Victor Augusto</h3>
+                <span class="team-role">Desenvolvedor</span>
             </div>
             <div class="team-card reveal tilt-card">
-                <div class="team-avatar">Y</div>
-                <h3>Yago</h3>
-                <span class="team-role">Desenvolvedor Frontend</span>
-            </div>
-            <div class="team-card reveal tilt-card">
-                <div class="team-avatar">Y</div>
-                <h3>Yago</h3>
-                <span class="team-role">UX/UI Designer</span>
-            </div>
-            <div class="team-card reveal tilt-card">
-                <div class="team-avatar">Y</div>
-                <h3>Yago</h3>
+                <h3>Luis Fialho</h3>
                 <span class="team-role">Analista de Requisitos</span>
             </div>
             <div class="team-card reveal tilt-card">
-                <div class="team-avatar">Y</div>
-                <h3>Yago</h3>
-                <span class="team-role">QA / Testes</span>
+                <h3>Pedro Gustavo Verissimo</h3>
+                <span class="team-role">Desenvolvedor</span>
+            </div>
+            <div class="team-card reveal tilt-card">
+                <h3>Kaio Rodrigues Teixeira</h3>
+                <span class="team-role">Analista de Requisitos</span>
+            </div>
+            <div class="team-card reveal tilt-card">
+                <h3>Victhor Gladistone</h3>
+                <span class="team-role">Gerente</span>
             </div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>

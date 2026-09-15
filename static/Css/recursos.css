@@ -6,8 +6,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.6rem 3rem;
-  border-bottom: 1px solid #14181f;
-  background: rgba(5, 7, 12, 0.55);
+  border-bottom: 1px solid var(--border-soft);
+  background: rgba(var(--bg-app-rgb), 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -22,17 +22,17 @@
   flex: 1;
   max-width: 480px;
   margin: 0 2rem;
-  background: #0d1017;
-  border: 1px solid #1c212b;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   padding: 0.65rem 1rem;
-  color: #fff;
+  color: var(--text-main);
   font-size: 0.9rem;
   outline: none;
 }
 
 .search-input::placeholder {
-  color: #64748b;
+  color: var(--text-faint);
 }
 
 .search-input:focus {
@@ -56,8 +56,8 @@
 }
 
 .recurso-card {
-  background: rgba(10, 13, 19, 0.9);
-  border: 1px solid #171b23;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 1.6rem;
   min-height: 150px;
@@ -74,11 +74,11 @@
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 0.7rem;
-  color: #fff;
+  color: var(--text-main);
 }
 
 .recurso-card p {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 0.88rem;
   line-height: 1.55;
 }

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusHUB - Mapa do Sistema</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mapa.css') }}">
+</head>
+<body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
+    <header class="mapa-header">
+        <div class="header-group">
+            <a href="/" class="voltar-link">&larr; Voltar</a>
+            <div class="logo">
+                CAMPUS<span class="logo-white">.HUB</span>
+            </div>
+        </div>
+
+        <div class="header-group">
+            <a href="/recursos" class="nav-link">Recursos</a>
+            <a href="/sobrenos" class="nav-link">Sobre Nós</a>
+            <a href="/login" class="btn-gradient">Acessar Painel</a>
+        </div>
+    </header>
+
+    <div class="mapa-container">
+        <h1 class="mapa-title reveal">Mapa do Sistema</h1>
+        <div class="mapa-title-bar reveal"></div>
+        <p class="mapa-sub reveal">Passe o mouse ou toque em qualquer rota para ver os detalhes. Clique para abrir a página.</p>
+
+        <div class="mapa-toolbar reveal">
+            <div class="mapa-filters" role="tablist" aria-label="Filtrar por nível de acesso">
+                <button class="mapa-filter active" data-filter="todos" type="button">Todos</button>
+                <button class="mapa-filter" data-filter="publico" type="button">Público</button>
+                <button class="mapa-filter" data-filter="logado" type="button">Logado</button>
+                <button class="mapa-filter" data-filter="admin" type="button">Admin</button>
+            </div>
+            <input class="mapa-search" type="search" placeholder="Buscar rota, página ou funcionalidade..." aria-label="Buscar no mapa do sistema" />
+        </div>
+
+        <div class="mapa-preview reveal" id="mapaPreview">
+            <span class="mapa-preview-label">Selecione uma rota</span>
+            <span class="mapa-preview-path">/</span>
+            <span class="mapa-preview-desc">Passe o mouse sobre um card para ver o caminho e o nível de acesso aqui.</span>
+        </div>
+
+        <div class="mapa-root-wrap reveal">
+            <a href="/" class="mapa-node mapa-node-root" data-badge="publico" data-desc="Página inicial pública do CampusHUB.">
+                <span class="mapa-node-name">HOME</span>
+                <span class="mapa-node-path">/</span>
+            </a>
+        </div>
+        <div class="mapa-trunk-stem"></div>
+        <div class="mapa-trunk-bar"></div>
+
+        <div class="mapa-row">
+            <div class="mapa-col reveal">
+                <div class="mapa-col-stem"></div>
+                <a href="/login" class="mapa-node" data-badge="publico" data-desc="Formulário de autenticação de usuários.">
+                    <span class="mapa-node-name">LOGIN</span>
+                    <span class="mapa-node-path">/login</span>
+                    <span class="mapa-badge mapa-badge-publico">Público</span>
+                </a>
+                <a href="/login" class="mapa-child" data-badge="publico" data-desc="Criação e verificação da sessão do usuário.">Autenticação &amp; sessão</a>
+            </div>
+
+            <div class="mapa-col reveal">
+                <div class="mapa-col-stem"></div>
+                <a href="/recursos" class="mapa-node" data-badge="publico" data-desc="Apresenta os recursos e funcionalidades do sistema.">
+                    <span class="mapa-node-name">RECURSOS</span>
+                    <span class="mapa-node-path">/recursos</span>
+                    <span class="mapa-badge mapa-badge-publico">Público</span>
+                </a>
+            </div>
+
+            <div class="mapa-col reveal">
+                <div class="mapa-col-stem"></div>
+                <a href="/sobrenos" class="mapa-node" data-badge="publico" data-desc="História, missão e equipe por trás do CampusHUB.">
+                    <span class="mapa-node-name">SOBRE NÓS</span>
+                    <span class="mapa-node-path">/sobrenos</span>
+                    <span class="mapa-badge mapa-badge-publico">Público</span>
+                </a>
+            </div>
+
+            <div class="mapa-col reveal">
+                <div class="mapa-col-stem"></div>
+                <a href="/solicitar-acesso" class="mapa-node" data-badge="publico" data-desc="Formulário para pedir acesso ou redefinir a senha.">
+                    <span class="mapa-node-name">SOLICITAR ACESSO</span>
+                    <span class="mapa-node-path">/solicitar-acesso</span>
+                    <span class="mapa-badge mapa-badge-publico">Público</span>
+                </a>
+                <a href="/solicitar-acesso/enviado" class="mapa-child" data-badge="publico" data-desc="Tela de confirmação após o envio da solicitação.">Solicitação Enviada</a>
+            </div>
+
+            <div class="mapa-col reveal">
+                <div class="mapa-col-stem"></div>
+                <a href="/visaogeral" class="mapa-node" data-badge="logado" data-desc="Painel inicial com indicadores gerais do sistema.">
+                    <span class="mapa-node-name">PAINEL</span>
+                    <span class="mapa-node-path">/visaogeral</span>
+                    <span class="mapa-badge mapa-badge-logado">Logado</span>
+                </a>
+                <a href="/visaogeral" class="mapa-child" data-badge="logado" data-desc="Itens cadastrados, estoque crítico e saídas do dia.">Visão Geral</a>
+            </div>
+        </div>
+
+        <div class="mapa-divider reveal">
+            <span>Área logada — requer sessão ativa</span>
+        </div>
+
+        <div class="mapa-row">
+            <div class="mapa-col reveal">
+                <div class="mapa-col-stem"></div>
+                <a href="/inventario" class="mapa-node" data-badge="logado" data-desc="Lista e controle das peças de TI cadastradas.">
+                    <span class="mapa-node-name">INVENTÁRIO</span>
+                    <span class="mapa-node-path">/inventario</span>
+                    <span class="mapa-badge mapa-badge-logado">Logado</span>
+                </a>
+                <a href="/inventario/gerenciar" class="mapa-child" data-badge="admin" data-desc="Cadastro e exclusão de peças no inventário.">Cadastrar / Excluir Peça <span class="mapa-tag">ADMIN</span></a>
+            </div>
+
+            <div class="mapa-col reveal">
+                <div class="mapa-col-stem"></div>
+                <a href="/salas" class="mapa-node" data-badge="logado" data-desc="Lista das salas e laboratórios monitorados.">
+                    <span class="mapa-node-name">SALAS</span>
+                    <span class="mapa-node-path">/salas</span>
+                    <span class="mapa-badge mapa-badge-logado">Logado</span>
+                </a>
+                <a href="/salas/gerenciar" class="mapa-child" data-badge="admin" data-desc="Cadastro de novas salas e laboratórios.">Cadastrar Sala <span class="mapa-tag">ADMIN</span></a>
+            </div>
+
+            <div class="mapa-col reveal">
+                <div class="mapa-col-stem"></div>
+                <a href="/requisicoes" class="mapa-node" data-badge="logado" data-desc="Pedidos de peças feitos pelos usuários.">
+                    <span class="mapa-node-name">REQUISIÇÕES</span>
+                    <span class="mapa-node-path">/requisicoes</span>
+                    <span class="mapa-badge mapa-badge-logado">Logado</span>
+                </a>
+                <a href="/requisicoes" class="mapa-child" data-badge="logado" data-desc="Abertura de uma nova requisição de peça.">Nova Requisição <span class="mapa-tag mapa-tag-todos">TODOS</span></a>
+                <a href="/requisicoes" class="mapa-child" data-badge="admin" data-desc="Aprovação ou recusa das requisições recebidas.">Aprovar / Recusar <span class="mapa-tag">ADMIN</span></a>
+            </div>
+
+            <div class="mapa-col reveal">
+                <div class="mapa-col-stem"></div>
+                <a href="/logs" class="mapa-node" data-badge="logado" data-desc="Registro de todas as ações realizadas no sistema.">
+                    <span class="mapa-node-name">LOGS</span>
+                    <span class="mapa-node-path">/logs</span>
+                    <span class="mapa-badge mapa-badge-logado">Logado</span>
+                </a>
+                <a href="/logs" class="mapa-child" data-badge="logado" data-desc="Histórico completo de atividades registradas.">Histórico de Atividades <span class="mapa-tag mapa-tag-todos">TODOS</span></a>
+            </div>
+
+            <div class="mapa-col reveal">
+                <div class="mapa-col-stem"></div>
+                <a href="/usuarios" class="mapa-node" data-badge="admin" data-desc="Gestão de usuários e cópias de segurança do sistema.">
+                    <span class="mapa-node-name">ADMINISTRAÇÃO</span>
+                    <span class="mapa-node-path">/usuarios · /backup</span>
+                    <span class="mapa-badge mapa-badge-admin">Admin</span>
+                </a>
+                <a href="/usuarios" class="mapa-child" data-badge="admin" data-desc="Criação e remoção de usuários (limite de 4).">Usuários (limite 4) <span class="mapa-tag">ADMIN</span></a>
+                <a href="/backup" class="mapa-child" data-badge="admin" data-desc="Geração e download do backup em .sql.">Backup (.sql) <span class="mapa-tag">ADMIN</span></a>
+            </div>
+        </div>
+
+        <div class="mapa-legend reveal">
+            <span><i class="mapa-dot mapa-dot-publico"></i> Área pública</span>
+            <span><i class="mapa-dot mapa-dot-logado"></i> Área logada — acessível a qualquer usuário</span>
+            <span><i class="mapa-dot mapa-dot-admin"></i> Restrito ao administrador</span>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mapa.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</body>
+</html>

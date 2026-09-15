@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusHUB - Solicitação Enviada</title>
@@ -9,12 +11,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
     <div class="login-container">
         <div class="login-card login-card-anim access-card" style="text-align:center;">
             <div class="access-success-icon">&check;</div>
 
             <h2 style="color:#fff; font-size:1.3rem; margin-bottom:0.6rem;">Solicitação Enviada!</h2>
-            <p style="color:#94a3b8; font-size:0.9rem; margin-bottom:1.6rem;">
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.6rem;">
                 Recebemos o seu pedido de acesso com sucesso.<br>
                 Entraremos em contato via e-mail em breve.
             </p>
@@ -29,5 +32,6 @@
 
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>
