@@ -1,28 +1,37 @@
+"""Cria o banco e as tabelas no TiDB Cloud (rode UMA vez)."""
 import os
+import re
 import mysql.connector
 from dotenv import load_dotenv
+from ssl_util import achar_ca
 
 load_dotenv()
 
+ca = achar_ca()
+print("Usando certificado:", ca)
+
 conn = mysql.connector.connect(
-    host=os.environ.get("DB_HOST"),
-    port=int(os.environ.get("DB_PORT", "3306")),
-    user=os.environ.get("DB_USER"),
-    password=os.environ.get("DB_PASSWORD"),
-    ssl_ca=os.path.join(os.path.dirname(__file__), "certs", "ca.pem"),
+    host=os.environ["DB_HOST"],
+    port=int(os.environ.get("DB_PORT", "4000")),
+    user=os.environ["DB_USER"],
+    password=os.environ["DB_PASSWORD"],
+    ssl_ca=ca,
     ssl_verify_cert=True,
 )
 
 with open(os.path.join(os.path.dirname(__file__), "database.sql"), "r", encoding="utf-8") as f:
-    sql_script = f.read()
+    sql = f.read()
+
+# TiDB NAO suporta triggers: remove o bloco DELIMITER/TRIGGER.
+# O limite de 4 usuarios por admin ja e validado no app.py.
+sql = re.sub(r"DELIMITER \$\$.*?DELIMITER ;", "", sql, flags=re.S)
 
 cursor = conn.cursor()
-for statement in sql_script.split(";"):
-    statement = statement.strip()
-    if statement:
-        cursor.execute(statement)
-
+for stmt in sql.split(";"):
+    stmt = stmt.strip()
+    if stmt:
+        cursor.execute(stmt)
 conn.commit()
-print("Tabelas criadas com sucesso!")
+print("Banco e tabelas criados com sucesso!")
 cursor.close()
 conn.close()

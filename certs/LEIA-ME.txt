@@ -1,7 +1,2 @@
-Baixe o certificado CA da Aiven e coloque nesta pasta com o nome ca.pem:
-
-1. Entre no console da Aiven (console.aiven.io)
-2. Abra o seu serviço MySQL
-3. Na aba "Overview", procure "CA certificate" e clique em "Download"
-4. Salve o arquivo baixado como ca.pem exatamente nesta pasta (certs/ca.pem)
-5. Apague este arquivo LEIA-ME.txt depois (opcional)
+Baixe o certificado CA no TiDB Cloud (Connect > CA cert) e salve aqui como ca.pem.
+So e necessario para rodar localmente (DB_SSL_CA=certs/ca.pem). No Render nao precisa.

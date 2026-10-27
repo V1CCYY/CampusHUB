@@ -397,3 +397,12 @@
   .form-grid { grid-template-columns: 1fr; }
   .painel-topbar, .painel-content { padding-left: 1.4rem; padding-right: 1.4rem; }
 }
+
+/* ---- imagens de equipamento, select e upload ---- */
+.equip-thumb { width: 40px; height: 40px; border-radius: 8px; display: block; }
+.form-field select,
+.form-field input[type="file"] {
+  width: 100%; padding: 0.75rem 0.9rem; border-radius: 8px; border: 1px solid var(--input-border);
+  background: var(--input-bg); color: var(--text-main); font-size: 0.9rem; font-family: inherit; box-sizing: border-box;
+}
+.form-field select:focus { border-color: #22d3ee; box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15); outline: none; }

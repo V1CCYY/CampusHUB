@@ -102,3 +102,11 @@ Acesse `http://127.0.0.1:5000/login` e entre com `admin` / `adm123`.
   tela de solicitação de acesso).
 - Se quiser múltiplos administradores independentes, basta cadastrar outro
   usuário direto no banco com `tipo = 'admin'` e `criado_por = NULL`.
+
+## Novidades (26/10)
+
+- **Backup**: gera `.zip` (backup.json + backup.sql) e restaura por upload em *Backup > Restaurar*.
+- **Logs por nível**: usuário vê só usuários; técnico (cargo contendo "Técnico") vê técnicos e usuários; admin vê tudo.
+- **CampusBot**: chatbot no painel (chamados, nova requisição guiada, estoque, salas, logs).
+- **Requisição**: seleção obrigatória de sala em lista (rode `migracao_sala.sql` em bancos existentes).
+- **Imagens genéricas** por tipo de equipamento (`static/images/equipamentos`).
