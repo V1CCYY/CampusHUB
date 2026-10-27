@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusHUB - Gerenciar Sala</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/painel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/chatbot.css') }}">
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
     <div class="painel-layout">
         <aside class="sidebar">
             <div class="logo">
@@ -34,49 +38,49 @@
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:var(--text-muted);">Sair</a></div>
             </div>
 
             <div class="painel-content">
-                <h1 class="painel-page-title">Gerenciar Sala / Laboratório</h1>
+                <h1 class="painel-page-title">{{ 'Editar' if sala else 'Gerenciar' }} Sala / Laboratório</h1>
 
                 <div class="panel-card">
-                    <div class="panel-card-title">Cadastrar / Editar Sala ou Lab</div>
+                    <div class="panel-card-title">{{ 'Editar Sala ou Lab' if sala else 'Cadastrar Sala ou Lab' }}</div>
                     <p class="panel-card-subtitle">Informe o identificador, tipo e responsabilidade do ambiente.</p>
 
-                    <form method="post" action="/salas/gerenciar">
+                    <form method="post" action="{{ '/salas/editar/' ~ sala.id if sala else '/salas/gerenciar' }}">
                         <div class="form-grid">
                             <div class="form-field">
-                                <label>Nome / Identificador da Sala</label>
-                                <input type="text" name="nome" placeholder="Ex: Laboratório 01 - Informática" required>
+                                <label>Nome / Identificador da Sala *</label>
+                                <input type="text" name="nome" placeholder="Ex: Laboratório 01 - Informática" value="{{ sala.nome if sala else '' }}" required>
                             </div>
                             <div class="form-field">
                                 <label>Tipo de Ambiente</label>
-                                <input type="text" name="tipo" placeholder="Ex: Laboratório de Computação">
+                                <input type="text" name="tipo" placeholder="Ex: Laboratório de Computação" value="{{ sala.tipo if sala else '' }}">
                             </div>
                             <div class="form-field full">
                                 <label>Bloco / Localização</label>
-                                <input type="text" name="bloco" placeholder="Ex: Bloco B - Térreo">
+                                <input type="text" name="bloco" placeholder="Ex: Bloco B - Térreo" value="{{ sala.bloco if sala else '' }}">
                             </div>
                             <div class="form-field">
                                 <label>Quantidade de Computadores</label>
-                                <input type="number" name="computadores" placeholder="0" min="0">
+                                <input type="number" name="computadores" placeholder="0" min="0" value="{{ sala.computadores if sala else '' }}">
                             </div>
                             <div class="form-field">
                                 <label>Responsável</label>
                                 <select name="responsavel_id">
                                     <option value="">Selecione...</option>
                                     {% for membro in equipe %}
-                                    <option value="{{ membro.id }}">{{ membro.nome }}</option>
+                                    <option value="{{ membro.id }}" {{ 'selected' if sala and sala.responsavel_id == membro.id else '' }}>{{ membro.nome }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <div class="form-field">
                                 <label>Status</label>
                                 <select name="status">
-                                    <option value="Ativo">Ativo</option>
-                                    <option value="Manutenção">Manutenção</option>
-                                    <option value="Inativo">Inativo</option>
+                                    <option value="Ativo" {{ 'selected' if sala and sala.status == 'Ativo' else '' }}>Ativo</option>
+                                    <option value="Manutenção" {{ 'selected' if sala and sala.status == 'Manutenção' else '' }}>Manutenção</option>
+                                    <option value="Inativo" {{ 'selected' if sala and sala.status == 'Inativo' else '' }}>Inativo</option>
                                 </select>
                             </div>
                         </div>
@@ -91,7 +95,9 @@
         </main>
     </div>
 
+    {% include '_chatbot.html' %}
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>

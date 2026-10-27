@@ -1,0 +1,2 @@
+Baixe o certificado CA no TiDB Cloud (Connect > CA cert) e salve aqui como ca.pem.
+So e necessario para rodar localmente (DB_SSL_CA=certs/ca.pem). No Render nao precisa.

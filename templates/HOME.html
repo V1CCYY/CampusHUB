@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusHUB - Gestão Acadêmica</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/home.css') }}">
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
     <header class="header header-fixed">
         <div class="logo">
             CAMPUS<span class="logo-white">.HUB</span>
@@ -16,6 +19,7 @@
         <nav class="nav">
             <a href="/recursos" class="nav-link">Recursos</a>
             <a href="/sobrenos" class="nav-link">Sobre Nós</a>
+            <a href="/mapa-sistema" class="nav-link">Mapa do Sistema</a>
             <a href="/login" class="btn-gradient">Acessar Painel</a>
         </nav>
     </header>
@@ -36,6 +40,10 @@
                 equipamentos de TI da instituição — do cadastro à manutenção
                 preventiva, substituindo planilhas manuais e o "apagão tecnológico"
                 por controle de verdade.
+            </p>
+
+            <p class="hero-subtitle reveal-line" style="margin-top:-1.4rem;">
+                <a href="#chatbot" class="text-link">Novo: o CampusHUB agora tem um chatbot, o CampusBot, para abrir requisições e consultar chamados pelo chat.</a>
             </p>
 
             <div class="reveal-line">
@@ -75,6 +83,27 @@
 
         <div class="section-cta reveal">
             <a href="/recursos" class="text-link">Ver todos os recursos &rarr;</a>
+        </div>
+    </section>
+
+    <section id="chatbot" class="section section-split">
+        <div class="reveal">
+            <h2 class="section-title">O sistema tem chatbot: o CampusBot</h2>
+            <p class="section-subtitle">
+                Dentro do painel, um assistente responde por conversa. Peça seus chamados, consulte o
+                estoque e as salas, veja os últimos logs ou abra uma requisição passo a passo,
+                escolhendo a sala e os itens direto no chat.
+            </p>
+            <a href="/login" class="text-link">Experimentar no painel &rarr;</a>
+        </div>
+
+        <div class="bot-demo reveal" aria-hidden="true">
+            <div class="bot-demo-head">CampusBot</div>
+            <div class="bot-msg bot-user">meus chamados</div>
+            <div class="bot-msg">Encontrei 2 chamado(s) seus.</div>
+            <div class="bot-demo-card"><strong>Chamado #18</strong><span>2x Mouse USB · Sala Lab 02</span><em>Pendente</em></div>
+            <div class="bot-demo-card"><strong>Chamado #15</strong><span>1x Cabo HDMI · Sala 104</span><em>Aprovado</em></div>
+            <div class="bot-chips"><span>Nova requisição</span><span>Consultar estoque</span></div>
         </div>
     </section>
 
@@ -151,6 +180,15 @@
             </div>
             <div class="accordion-item">
                 <button class="accordion-trigger" type="button">
+                    <span>O sistema possui chatbot?</span>
+                    <span class="accordion-icon">+</span>
+                </button>
+                <div class="accordion-panel">
+                    <p>Sim. O CampusBot fica no canto do painel e agiliza requisições, consulta de chamados, estoque, salas e logs.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-trigger" type="button">
                     <span>Funciona em qualquer dispositivo?</span>
                     <span class="accordion-icon">+</span>
                 </button>
@@ -205,5 +243,6 @@
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>

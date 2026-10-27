@@ -50,12 +50,15 @@ CREATE TABLE pecas (
 CREATE TABLE requisicoes (
     id                INT AUTO_INCREMENT PRIMARY KEY,
     solicitante_id    INT NOT NULL,
+    sala_id           INT NULL,
     item_pedido       VARCHAR(200) NOT NULL,
     motivo            VARCHAR(255) NULL,
     status            ENUM('Pendente','Aprovado','Recusado') NOT NULL DEFAULT 'Pendente',
     data_solicitacao  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_requisicoes_solicitante
-        FOREIGN KEY (solicitante_id) REFERENCES usuarios(id) ON DELETE CASCADE
+        FOREIGN KEY (solicitante_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    CONSTRAINT fk_requisicoes_sala
+        FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE movimentacoes (

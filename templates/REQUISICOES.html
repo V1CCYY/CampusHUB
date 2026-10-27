@@ -1,13 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusHUB - Requisições</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/painel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/chatbot.css') }}">
+    <style>
+        .itens-scroll {
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .itens-scroll .data-table thead th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+        }
+    </style>
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
     <div class="painel-layout">
         <aside class="sidebar">
             <div class="logo">
@@ -34,19 +49,68 @@
         <main class="painel-main">
             <div class="painel-topbar">
                 <input type="text" class="painel-search" placeholder="Pesquisar na tabela...">
-                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:#94a3b8;">Sair</a></div>
+                <div class="painel-user">{{ logado_nome }} <span style="opacity:.6;">({{ logado_cargo }})</span> &middot; <a href="/logout" style="color:var(--text-muted);">Sair</a></div>
             </div>
 
             <div class="painel-content">
                 <h1 class="painel-page-title">Pedidos de Material</h1>
 
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <p style="color:#facc15; margin-bottom:1rem;">{{ messages[0] }}</p>
+                    {% endif %}
+                {% endwith %}
+
                 <div class="panel-card">
                     <div class="panel-card-title">Nova Requisição</div>
                     <form method="post" action="/requisicoes">
-                        <div class="form-grid">
-                            <div class="form-field">
-                                <label>Item Pedido</label>
-                                <input type="text" name="item_pedido" placeholder="Ex: Mouse Óptico USB" required>
+                        <p class="panel-card-subtitle">Selecione os itens do estoque que serão retirados para este chamado.</p>
+
+                        <div class="itens-scroll">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Código</th>
+                                    <th>Item</th>
+                                    <th>Em estoque</th>
+                                    <th>Quantidade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in pecas %}
+                                <tr>
+                                    <td><img class="equip-thumb" src="{{ equip_img(p.descricao) }}" alt="" width="40" height="40" loading="lazy"></td>
+                                    <td>{{ p.codigo }}</td>
+                                    <td>{{ p.descricao }}</td>
+                                    <td>{{ p.quantidade }}</td>
+                                    <td><input type="number" name="qtd_{{ p.id }}" min="0" max="{{ p.quantidade }}" value="0" style="width:80px;"></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        </div>
+                        {% if not pecas %}
+                        <div class="panel-empty">Nenhum item cadastrado no estoque ainda.</div>
+                        {% endif %}
+
+                        <div class="form-grid" style="margin-top:1.6rem;">
+                            <div class="form-field full">
+                                <label>Sala *</label>
+                                {% if salas %}
+                                <select name="sala_id" required>
+                                    <option value="">Selecione a sala…</option>
+                                    {% for s in salas %}
+                                    <option value="{{ s.id }}">{{ s.nome }}{% if s.bloco %} — {{ s.bloco }}{% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                                {% else %}
+                                <p class="panel-card-subtitle" style="margin:0;">Nenhuma sala cadastrada. Peça ao administrador para cadastrar uma sala.</p>
+                                {% endif %}
+                            </div>
+                            <div class="form-field full">
+                                <label>Outro item (fora do estoque)</label>
+                                <input type="text" name="item_pedido" placeholder="Ex: Item não cadastrado no inventário">
                             </div>
                             <div class="form-field full">
                                 <label>Motivo</label>
@@ -65,9 +129,10 @@
                             <tr>
                                 <th>Solicitante</th>
                                 <th>Item Pedido</th>
+                                <th>Sala</th>
                                 <th>Motivo</th>
                                 <th>Status</th>
-                                {% if logado_tipo == 'admin' %}<th>Ação</th>{% endif %}
+                                <th>Ação</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,22 +140,34 @@
                             <tr>
                                 <td>{{ r.solicitante_nome }}</td>
                                 <td>{{ r.item_pedido }}</td>
+                                <td>{{ r.sala_nome or '-' }}</td>
                                 <td>{{ r.motivo or '-' }}</td>
                                 <td>{{ r.status }}</td>
-                                {% if logado_tipo == 'admin' %}
                                 <td>
-                                    {% if r.status == 'Pendente' %}
-                                    <form method="post" action="/requisicoes/{{ r.id }}/aprovar" style="display:inline;">
-                                        <button type="submit" class="btn-panel btn-panel-primary">Aprovar</button>
-                                    </form>
-                                    <form method="post" action="/requisicoes/{{ r.id }}/recusar" style="display:inline;">
-                                        <button type="submit" class="btn-panel btn-panel-outline">Recusar</button>
-                                    </form>
-                                    {% else %}
-                                    &mdash;
-                                    {% endif %}
+                                    {% set pode_avaliar = logado_tipo == 'admin' and r.status == 'Pendente' %}
+                                    {% set pode_editar = r.status == 'Pendente' and (logado_tipo == 'admin' or r.solicitante_id == logado_id) %}
+                                    <div class="table-actions">
+                                        {% if pode_avaliar %}
+                                        <form method="post" action="/requisicoes/{{ r.id }}/aprovar" style="display:inline;">
+                                            <button type="submit" class="btn-panel btn-panel-primary btn-panel-sm">Aprovar</button>
+                                        </form>
+                                        <form method="post" action="/requisicoes/{{ r.id }}/recusar" style="display:inline;">
+                                            <button type="submit" class="btn-panel btn-panel-outline btn-panel-sm">Recusar</button>
+                                        </form>
+                                        {% endif %}
+                                        {% if pode_editar %}
+                                        <a href="/requisicoes/{{ r.id }}/editar" class="btn-panel btn-panel-outline btn-panel-sm">Editar</a>
+                                        {% endif %}
+                                        {% if logado_tipo == 'admin' %}
+                                        <form method="post" action="/requisicoes/{{ r.id }}/excluir" style="display:inline;" class="confirm-delete" data-confirm="Você deseja apagar a requisição de {{ r.item_pedido }}?">
+                                            <button type="submit" class="btn-panel btn-panel-outline btn-panel-sm">Excluir</button>
+                                        </form>
+                                        {% endif %}
+                                        {% if not pode_avaliar and not pode_editar and logado_tipo != 'admin' %}
+                                        &mdash;
+                                        {% endif %}
+                                    </div>
                                 </td>
-                                {% endif %}
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -103,7 +180,18 @@
         </main>
     </div>
 
+    {% include '_chatbot.html' %}
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+        document.querySelectorAll('.confirm-delete').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                if (!confirm(form.dataset.confirm)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

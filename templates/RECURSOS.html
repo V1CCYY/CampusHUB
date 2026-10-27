@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>(function(){try{var t=localStorage.getItem("chub-theme");if(t==="light"){document.documentElement.setAttribute("data-theme","light");}}catch(e){}})();</script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusHUB - Recursos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/recursos.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/global.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/recursos.css') }}">
 </head>
 <body>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
     <header class="recursos-header">
         <div class="header-group">
             <a href="/" class="voltar-link">&larr; Voltar</a>
@@ -49,13 +52,18 @@
                 <p>Controle de acesso à equipe, definição de cargos e níveis administrativos (como Programmer).</p>
             </div>
             <div class="recurso-card reveal tilt-card">
+                <h3>CampusBot (Chatbot)</h3>
+                <p>Assistente no painel para abrir requisições, ver chamados, consultar estoque, salas e logs por conversa.</p>
+            </div>
+            <div class="recurso-card reveal tilt-card">
                 <h3>Backup de Dados</h3>
-                <p>Área restrita para exportação de dados e tabelas do estoque em formato SQL (.sql).</p>
+                <p>Área restrita para gerar o backup em .zip e restaurá-lo por upload.</p>
             </div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>
