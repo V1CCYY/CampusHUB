@@ -8,6 +8,7 @@
     <title>CampusHUB - {% if peca %}Editar Peça{% else %}Gerenciar Peça{% endif %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
 </head>
 <body>
     <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
@@ -77,6 +78,7 @@
         </main>
     </div>
 
+    {% include '_chatbot.html' %}
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>

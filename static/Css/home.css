@@ -452,3 +452,15 @@ div.reveal-line { animation-delay: 0.55s; }
     background-attachment: scroll;
   }
 }
+
+/* ---- demo do CampusBot na Home ---- */
+.bot-demo { background: var(--home-card); border: 1px solid var(--home-card-border); border-radius: 14px; padding: 1.2rem; display: flex; flex-direction: column; gap: .6rem; max-width: 380px; }
+.bot-demo-head { font-weight: 800; padding-bottom: .5rem; border-bottom: 1px solid var(--home-card-border); }
+.bot-msg { font-size: .85rem; padding: .5rem .8rem; border-radius: 12px; background: rgba(0,0,0,.18); align-self: flex-start; }
+.bot-msg.bot-user { align-self: flex-end; background: linear-gradient(90deg, #22d3ee, #3b82f6); color: #05070c; font-weight: 600; }
+.bot-demo-card { display: grid; gap: .15rem; font-size: .8rem; padding: .6rem .8rem; border-radius: 10px; border: 1px solid var(--home-card-border); }
+.bot-demo-card span { color: var(--text-muted); }
+.bot-demo-card em { font-style: normal; color: #22d3ee; font-weight: 700; font-size: .72rem; }
+.bot-chips { display: flex; gap: .4rem; flex-wrap: wrap; }
+.bot-chips span { border: 1px solid #22d3ee; color: #22d3ee; border-radius: 999px; padding: .25rem .7rem; font-size: .75rem; font-weight: 600; }
+@media (max-width: 900px) { .section-split { grid-template-columns: 1fr; } }

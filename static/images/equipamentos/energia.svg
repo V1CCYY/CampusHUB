@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="energia">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#17325f"/><stop offset="1" stop-color="#0d1e3c"/></linearGradient></defs>
+<rect width="64" height="64" rx="12" fill="url(#g)"/>
+<g stroke="#22d3ee" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"><rect x="13" y="9" width="38" height="46" rx="5" fill="#3b82f6" fill-opacity=".28"/><path d="M35 19l-9 15h9l-7 14"/><circle cx="43" cy="47" r="1.6"/></g>
+</svg>

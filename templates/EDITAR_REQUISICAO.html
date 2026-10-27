@@ -8,6 +8,7 @@
     <title>CampusHUB - Editar Requisição</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/painel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
 </head>
 <body>
     <button id="themeToggle" class="theme-toggle" type="button" aria-label="Alternar modo claro/escuro"></button>
@@ -57,6 +58,7 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th></th>
                                     <th>Código</th>
                                     <th>Item</th>
                                     <th>Em estoque</th>
@@ -66,6 +68,7 @@
                             <tbody>
                                 {% for p in pecas %}
                                 <tr>
+                                    <td><img class="equip-thumb" src="{{ equip_img(p.descricao) }}" alt="" width="40" height="40" loading="lazy"></td>
                                     <td>{{ p.codigo }}</td>
                                     <td>{{ p.descricao }}</td>
                                     <td>{{ p.quantidade }}</td>
@@ -79,6 +82,15 @@
                         {% endif %}
 
                         <div class="form-grid" style="margin-top:1.6rem;">
+                            <div class="form-field full">
+                                <label>Sala *</label>
+                                <select name="sala_id" required>
+                                    <option value="">Selecione a sala…</option>
+                                    {% for s in salas %}
+                                    <option value="{{ s.id }}" {% if s.id == requisicao.sala_id %}selected{% endif %}>{{ s.nome }}{% if s.bloco %} — {{ s.bloco }}{% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                             <div class="form-field full">
                                 <label>Outro item (fora do estoque)</label>
                                 <input type="text" name="item_pedido" placeholder="Ex: Item não cadastrado no inventário">
@@ -98,6 +110,7 @@
         </main>
     </div>
 
+    {% include '_chatbot.html' %}
     <script src="{{ url_for('static', filename='js/particles-bg.js') }}"></script>
     <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>

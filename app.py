@@ -111,20 +111,35 @@ def solicitar_acesso():
 def solicitar_acesso_enviado():
     return render_template("SOLICITACAO_ENVIADA.html")
 
+def _serie_ultimos_dias(linhas, dias=7):
+    """Preenche com zero os dias sem registro e devolve (rótulos, valores)."""
+    from datetime import date, timedelta
+    por_dia = {l["dia"]: l["total"] for l in linhas}
+    hoje = date.today()
+    rotulos, valores = [], []
+    for i in range(dias - 1, -1, -1):
+        d = hoje - timedelta(days=i)
+        rotulos.append(d.strftime("%d/%m"))
+        valores.append(int(por_dia.get(d, 0)))
+    return rotulos, valores
+
 @app.route("/visaogeral")
 @login_required
 def visao_geral():
     admin_id = admin_scope_id()
+    equipe = (admin_id, admin_id)
 
-    itens_cadastrados = db.query(
-        "SELECT COUNT(*) AS total FROM pecas WHERE criado_por = %s",
+    # ---------- Indicadores (cards) ----------
+    resumo_pecas = db.query(
+        """SELECT COUNT(*) AS itens,
+                  COALESCE(SUM(quantidade), 0) AS unidades,
+                  COALESCE(SUM(quantidade < 3), 0) AS criticos
+           FROM pecas WHERE criado_por = %s""",
         (admin_id,), fetchone=True
-    )["total"]
-
-    estoque_critico = db.query(
-        "SELECT COUNT(*) AS total FROM pecas WHERE criado_por = %s AND quantidade < 3",
-        (admin_id,), fetchone=True
-    )["total"]
+    )
+    itens_cadastrados = int(resumo_pecas["itens"])
+    unidades_estoque = int(resumo_pecas["unidades"])
+    estoque_critico = int(resumo_pecas["criticos"])
 
     saidas_hoje = db.query(
         """SELECT COUNT(*) AS total FROM movimentacoes m
@@ -132,6 +147,128 @@ def visao_geral():
            WHERE p.criado_por = %s AND DATE(m.data_hora) = CURDATE()""",
         (admin_id,), fetchone=True
     )["total"]
+
+    resumo_salas = db.query(
+        """SELECT COUNT(*) AS total,
+                  COALESCE(SUM(status = 'Ativo'), 0) AS ativas,
+                  COALESCE(SUM(computadores), 0) AS computadores
+           FROM salas WHERE criado_por = %s""",
+        (admin_id,), fetchone=True
+    )
+
+    reqs_por_status = {
+        r["status"]: int(r["total"])
+        for r in db.query(
+            """SELECT r.status, COUNT(*) AS total
+               FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
+               WHERE u.id = %s OR u.criado_por = %s
+               GROUP BY r.status""",
+            equipe
+        )
+    }
+    reqs_pendentes = reqs_por_status.get("Pendente", 0)
+    reqs_total = sum(reqs_por_status.values())
+
+    # ---------- Dados dos gráficos ----------
+    rotulos, saidas_7d = _serie_ultimos_dias(db.query(
+        """SELECT DATE(m.data_hora) AS dia, COUNT(*) AS total
+           FROM movimentacoes m JOIN pecas p ON p.id = m.peca_id
+           WHERE p.criado_por = %s AND m.data_hora >= CURDATE() - INTERVAL 6 DAY
+           GROUP BY DATE(m.data_hora)""",
+        (admin_id,)
+    ))
+    _, reqs_7d = _serie_ultimos_dias(db.query(
+        """SELECT DATE(r.data_solicitacao) AS dia, COUNT(*) AS total
+           FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
+           WHERE (u.id = %s OR u.criado_por = %s)
+             AND r.data_solicitacao >= CURDATE() - INTERVAL 6 DAY
+           GROUP BY DATE(r.data_solicitacao)""",
+        equipe
+    ))
+
+    menores_estoques = db.query(
+        """SELECT descricao, quantidade FROM pecas
+           WHERE criado_por = %s ORDER BY quantidade ASC, descricao LIMIT 6""",
+        (admin_id,)
+    )
+
+    estoque_por_local = db.query(
+        """SELECT COALESCE(NULLIF(TRIM(local_estoque), ''), 'Sem local') AS local_nome,
+                  SUM(quantidade) AS total
+           FROM pecas WHERE criado_por = %s
+           GROUP BY local_nome ORDER BY total DESC""",
+        (admin_id,)
+    )
+    if len(estoque_por_local) > 5:
+        resto = sum(int(l["total"]) for l in estoque_por_local[5:])
+        estoque_por_local = estoque_por_local[:5] + [{"local_nome": "Outros", "total": resto}]
+
+    salas_por_status = db.query(
+        "SELECT status, COUNT(*) AS total FROM salas WHERE criado_por = %s GROUP BY status",
+        (admin_id,)
+    )
+
+    computadores_por_sala = db.query(
+        """SELECT nome, computadores FROM salas
+           WHERE criado_por = %s ORDER BY computadores DESC, nome LIMIT 6""",
+        (admin_id,)
+    )
+
+    graficos = {
+        "atividade": {
+            "labels": rotulos,
+            "series": [
+                {"name": "Saídas", "values": saidas_7d, "color": "#22d3ee"},
+                {"name": "Requisições", "values": reqs_7d, "color": "#a78bfa"},
+            ],
+        },
+        "requisicoes": [
+            {"label": "Pendentes", "value": reqs_por_status.get("Pendente", 0), "color": "#f59e0b"},
+            {"label": "Aprovadas", "value": reqs_por_status.get("Aprovado", 0), "color": "#22d3ee"},
+            {"label": "Recusadas", "value": reqs_por_status.get("Recusado", 0), "color": "#f43f5e"},
+        ],
+        "menores_estoques": [
+            {"label": p["descricao"], "value": int(p["quantidade"]),
+             "color": "#f43f5e" if p["quantidade"] < 3 else "#22d3ee"}
+            for p in menores_estoques
+        ],
+        "estoque_local": [
+            {"label": l["local_nome"], "value": int(l["total"])} for l in estoque_por_local
+        ],
+        "salas_status": [
+            {"label": s["status"], "value": int(s["total"]),
+             "color": {"Ativo": "#22d3ee", "Manutenção": "#f59e0b", "Inativo": "#f43f5e"}.get(s["status"], "#94a3b8")}
+            for s in salas_por_status
+        ],
+        "computadores_sala": [
+            {"label": s["nome"], "value": int(s["computadores"]), "color": "#3b82f6"}
+            for s in computadores_por_sala
+        ],
+    }
+
+    # ---------- Listas ----------
+    alertas_estoque = db.query(
+        """SELECT codigo, descricao, quantidade, local_estoque FROM pecas
+           WHERE criado_por = %s AND quantidade < 3
+           ORDER BY quantidade ASC, descricao LIMIT 6""",
+        (admin_id,)
+    )
+
+    requisicoes_pendentes = db.query(
+        """SELECT r.id, r.item_pedido, r.data_solicitacao, u.nome AS solicitante_nome
+           FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
+           WHERE (u.id = %s OR u.criado_por = %s) AND r.status = 'Pendente'
+           ORDER BY r.data_solicitacao DESC LIMIT 5""",
+        equipe
+    )
+
+    atividade_recente = db.query(
+        """SELECT l.data_hora, l.acao, u.nome AS usuario_nome
+           FROM logs l LEFT JOIN usuarios u ON u.id = l.usuario_id
+           WHERE u.id = %s OR u.criado_por = %s
+           ORDER BY l.data_hora DESC LIMIT 6""",
+        equipe
+    )
 
     movimentacoes = db.query(
         """SELECT p.codigo, p.descricao, m.destino, m.status, m.data_hora
@@ -145,8 +282,18 @@ def visao_geral():
     return render_template(
         "VisaoGeral.html",
         itens_cadastrados=itens_cadastrados,
+        unidades_estoque=unidades_estoque,
         estoque_critico=estoque_critico,
         saidas_hoje=saidas_hoje,
+        reqs_pendentes=reqs_pendentes,
+        reqs_total=reqs_total,
+        salas_total=int(resumo_salas["total"]),
+        salas_ativas=int(resumo_salas["ativas"]),
+        computadores_total=int(resumo_salas["computadores"]),
+        graficos=graficos,
+        alertas_estoque=alertas_estoque,
+        requisicoes_pendentes=requisicoes_pendentes,
+        atividade_recente=atividade_recente,
         movimentacoes=movimentacoes,
     )
 

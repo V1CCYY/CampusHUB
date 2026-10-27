@@ -11,4 +11,10 @@ DB_CONFIG = {
     "database": os.environ.get("DB_NAME", "campushub"),
 }
 
+# TiDB Cloud exige TLS. Ative com DB_SSL=true.
+if os.environ.get("DB_SSL", "false").lower() == "true":
+    from ssl_util import achar_ca
+    DB_CONFIG["ssl_ca"] = achar_ca()
+    DB_CONFIG["ssl_verify_cert"] = True
+
 SECRET_KEY = os.environ.get("SECRET_KEY", "troque-esta-chave-em-producao")
