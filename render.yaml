@@ -1,0 +1,25 @@
+# Blueprint do Render (opcional). Se preferir o painel, use os mesmos valores em Settings.
+services:
+  - type: web
+    name: campushub
+    runtime: python
+    plan: free
+    region: virginia          # mesma região do TiDB (us-east-1): menos latência a cada consulta
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app   # o resto vem do gunicorn.conf.py
+    healthCheckPath: /
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "4000"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        value: campushub
+      - key: DB_SSL
+        value: "true"
+      - key: SECRET_KEY
+        generateValue: true
