@@ -9,7 +9,7 @@ import zipfile
 
 from flask import (
     Flask, render_template, request, redirect,
-    url_for, session, flash, Response, jsonify
+    url_for, session, flash, Response, jsonify, abort
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -18,7 +18,8 @@ import chatbot
 from config import SECRET_KEY
 from equipamentos import imagem_equipamento
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="public/static", static_url_path="/static")
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 86400
 app.secret_key = SECRET_KEY
 db.init_app(app)
 
@@ -151,90 +152,68 @@ def visao_geral():
     admin_id = admin_scope_id()
     equipe = (admin_id, admin_id)
 
+    # 8 consultas rodando AO MESMO TEMPO (uma ida e volta ao banco, não oito em fila).
+    (pecas, salas, status_rows, saidas_rows, reqs_rows,
+     requisicoes_pendentes, atividade_recente, movimentacoes) = db.query_many([
+        ("SELECT codigo, descricao, quantidade, local_estoque FROM pecas WHERE criado_por = %s", (admin_id,)),
+        ("SELECT nome, status, computadores FROM salas WHERE criado_por = %s", (admin_id,)),
+        ("""SELECT r.status, COUNT(*) AS total
+            FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
+            WHERE u.id = %s OR u.criado_por = %s GROUP BY r.status""", equipe),
+        ("""SELECT DATE(m.data_hora) AS dia, COUNT(*) AS total
+            FROM movimentacoes m JOIN pecas p ON p.id = m.peca_id
+            WHERE p.criado_por = %s AND m.data_hora >= CURDATE() - INTERVAL 6 DAY
+            GROUP BY DATE(m.data_hora)""", (admin_id,)),
+        ("""SELECT DATE(r.data_solicitacao) AS dia, COUNT(*) AS total
+            FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
+            WHERE (u.id = %s OR u.criado_por = %s)
+              AND r.data_solicitacao >= CURDATE() - INTERVAL 6 DAY
+            GROUP BY DATE(r.data_solicitacao)""", equipe),
+        ("""SELECT r.id, r.item_pedido, r.data_solicitacao, u.nome AS solicitante_nome
+            FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
+            WHERE (u.id = %s OR u.criado_por = %s) AND r.status = 'Pendente'
+            ORDER BY r.data_solicitacao DESC LIMIT 5""", equipe),
+        ("""SELECT l.data_hora, l.acao, u.nome AS usuario_nome
+            FROM logs l LEFT JOIN usuarios u ON u.id = l.usuario_id
+            WHERE u.id = %s OR u.criado_por = %s
+            ORDER BY l.data_hora DESC LIMIT 6""", equipe),
+        ("""SELECT p.codigo, p.descricao, m.destino, m.status, m.data_hora
+            FROM movimentacoes m JOIN pecas p ON p.id = m.peca_id
+            WHERE p.criado_por = %s ORDER BY m.data_hora DESC LIMIT 15""", (admin_id,)),
+    ])
+    reqs_por_status = {r["status"]: int(r["total"]) for r in status_rows}
+    rotulos, saidas_7d = _serie_ultimos_dias(saidas_rows)
+    _, reqs_7d = _serie_ultimos_dias(reqs_rows)
+
     # ---------- Indicadores (cards) ----------
-    resumo_pecas = db.query(
-        """SELECT COUNT(*) AS itens,
-                  COALESCE(SUM(quantidade), 0) AS unidades,
-                  COALESCE(SUM(quantidade < 3), 0) AS criticos
-           FROM pecas WHERE criado_por = %s""",
-        (admin_id,), fetchone=True
-    )
-    itens_cadastrados = int(resumo_pecas["itens"])
-    unidades_estoque = int(resumo_pecas["unidades"])
-    estoque_critico = int(resumo_pecas["criticos"])
-
-    saidas_hoje = db.query(
-        """SELECT COUNT(*) AS total FROM movimentacoes m
-           JOIN pecas p ON p.id = m.peca_id
-           WHERE p.criado_por = %s AND DATE(m.data_hora) = CURDATE()""",
-        (admin_id,), fetchone=True
-    )["total"]
-
-    resumo_salas = db.query(
-        """SELECT COUNT(*) AS total,
-                  COALESCE(SUM(status = 'Ativo'), 0) AS ativas,
-                  COALESCE(SUM(computadores), 0) AS computadores
-           FROM salas WHERE criado_por = %s""",
-        (admin_id,), fetchone=True
-    )
-
-    reqs_por_status = {
-        r["status"]: int(r["total"])
-        for r in db.query(
-            """SELECT r.status, COUNT(*) AS total
-               FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
-               WHERE u.id = %s OR u.criado_por = %s
-               GROUP BY r.status""",
-            equipe
-        )
-    }
+    itens_cadastrados = len(pecas)
+    unidades_estoque = sum(int(p["quantidade"]) for p in pecas)
+    estoque_critico = sum(1 for p in pecas if p["quantidade"] < 3)
+    saidas_hoje = saidas_7d[-1] if saidas_7d else 0
     reqs_pendentes = reqs_por_status.get("Pendente", 0)
     reqs_total = sum(reqs_por_status.values())
 
     # ---------- Dados dos gráficos ----------
-    rotulos, saidas_7d = _serie_ultimos_dias(db.query(
-        """SELECT DATE(m.data_hora) AS dia, COUNT(*) AS total
-           FROM movimentacoes m JOIN pecas p ON p.id = m.peca_id
-           WHERE p.criado_por = %s AND m.data_hora >= CURDATE() - INTERVAL 6 DAY
-           GROUP BY DATE(m.data_hora)""",
-        (admin_id,)
-    ))
-    _, reqs_7d = _serie_ultimos_dias(db.query(
-        """SELECT DATE(r.data_solicitacao) AS dia, COUNT(*) AS total
-           FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
-           WHERE (u.id = %s OR u.criado_por = %s)
-             AND r.data_solicitacao >= CURDATE() - INTERVAL 6 DAY
-           GROUP BY DATE(r.data_solicitacao)""",
-        equipe
-    ))
+    por_estoque = sorted(pecas, key=lambda p: (p["quantidade"], (p["descricao"] or "").lower()))
+    menores_estoques = por_estoque[:6]
+    alertas_estoque = [p for p in por_estoque if p["quantidade"] < 3][:6]
 
-    menores_estoques = db.query(
-        """SELECT descricao, quantidade FROM pecas
-           WHERE criado_por = %s ORDER BY quantidade ASC, descricao LIMIT 6""",
-        (admin_id,)
-    )
-
-    estoque_por_local = db.query(
-        """SELECT COALESCE(NULLIF(TRIM(local_estoque), ''), 'Sem local') AS local_nome,
-                  SUM(quantidade) AS total
-           FROM pecas WHERE criado_por = %s
-           GROUP BY local_nome ORDER BY total DESC""",
-        (admin_id,)
-    )
+    locais = {}
+    for p in pecas:
+        nome = (p["local_estoque"] or "").strip() or "Sem local"
+        chave = nome.casefold()
+        if chave not in locais:
+            locais[chave] = {"local_nome": nome, "total": 0}
+        locais[chave]["total"] += int(p["quantidade"])
+    estoque_por_local = sorted(locais.values(), key=lambda l: -l["total"])
     if len(estoque_por_local) > 5:
-        resto = sum(int(l["total"]) for l in estoque_por_local[5:])
+        resto = sum(l["total"] for l in estoque_por_local[5:])
         estoque_por_local = estoque_por_local[:5] + [{"local_nome": "Outros", "total": resto}]
 
-    salas_por_status = db.query(
-        "SELECT status, COUNT(*) AS total FROM salas WHERE criado_por = %s GROUP BY status",
-        (admin_id,)
-    )
-
-    computadores_por_sala = db.query(
-        """SELECT nome, computadores FROM salas
-           WHERE criado_por = %s ORDER BY computadores DESC, nome LIMIT 6""",
-        (admin_id,)
-    )
+    contagem_status = {}
+    for s in salas:
+        contagem_status[s["status"]] = contagem_status.get(s["status"], 0) + 1
+    computadores_por_sala = sorted(salas, key=lambda s: (-int(s["computadores"] or 0), s["nome"]))[:6]
 
     graficos = {
         "atividade": {
@@ -258,48 +237,15 @@ def visao_geral():
             {"label": l["local_nome"], "value": int(l["total"])} for l in estoque_por_local
         ],
         "salas_status": [
-            {"label": s["status"], "value": int(s["total"]),
-             "color": {"Ativo": "#22d3ee", "Manutenção": "#f59e0b", "Inativo": "#f43f5e"}.get(s["status"], "#94a3b8")}
-            for s in salas_por_status
+            {"label": status, "value": total,
+             "color": {"Ativo": "#22d3ee", "Manutenção": "#f59e0b", "Inativo": "#f43f5e"}.get(status, "#94a3b8")}
+            for status, total in contagem_status.items()
         ],
         "computadores_sala": [
-            {"label": s["nome"], "value": int(s["computadores"]), "color": "#3b82f6"}
+            {"label": s["nome"], "value": int(s["computadores"] or 0), "color": "#3b82f6"}
             for s in computadores_por_sala
         ],
     }
-
-    # ---------- Listas ----------
-    alertas_estoque = db.query(
-        """SELECT codigo, descricao, quantidade, local_estoque FROM pecas
-           WHERE criado_por = %s AND quantidade < 3
-           ORDER BY quantidade ASC, descricao LIMIT 6""",
-        (admin_id,)
-    )
-
-    requisicoes_pendentes = db.query(
-        """SELECT r.id, r.item_pedido, r.data_solicitacao, u.nome AS solicitante_nome
-           FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
-           WHERE (u.id = %s OR u.criado_por = %s) AND r.status = 'Pendente'
-           ORDER BY r.data_solicitacao DESC LIMIT 5""",
-        equipe
-    )
-
-    atividade_recente = db.query(
-        """SELECT l.data_hora, l.acao, u.nome AS usuario_nome
-           FROM logs l LEFT JOIN usuarios u ON u.id = l.usuario_id
-           WHERE u.id = %s OR u.criado_por = %s
-           ORDER BY l.data_hora DESC LIMIT 6""",
-        equipe
-    )
-
-    movimentacoes = db.query(
-        """SELECT p.codigo, p.descricao, m.destino, m.status, m.data_hora
-           FROM movimentacoes m
-           JOIN pecas p ON p.id = m.peca_id
-           WHERE p.criado_por = %s
-           ORDER BY m.data_hora DESC LIMIT 15""",
-        (admin_id,)
-    )
 
     return render_template(
         "VisaoGeral.html",
@@ -309,9 +255,9 @@ def visao_geral():
         saidas_hoje=saidas_hoje,
         reqs_pendentes=reqs_pendentes,
         reqs_total=reqs_total,
-        salas_total=int(resumo_salas["total"]),
-        salas_ativas=int(resumo_salas["ativas"]),
-        computadores_total=int(resumo_salas["computadores"]),
+        salas_total=len(salas),
+        salas_ativas=sum(1 for s in salas if s["status"] == "Ativo"),
+        computadores_total=sum(int(s["computadores"] or 0) for s in salas),
         graficos=graficos,
         alertas_estoque=alertas_estoque,
         requisicoes_pendentes=requisicoes_pendentes,
@@ -661,48 +607,78 @@ def requisicoes_excluir(req_id):
     flash("Requisição excluída com sucesso.")
     return redirect(url_for("requisicoes"))
 
+def avaliar_requisicao(req_id, acao, admin_id):
+    """Aprova ou recusa uma requisição da equipe do admin. Devolve (ok, mensagem).
+
+    Aprovar baixa o estoque (só se houver saldo), registra a movimentação e muda o status,
+    tudo na MESMA transação: ou grava tudo, ou nada.
+    """
+    req = db.query(
+        """SELECT r.* FROM requisicoes r JOIN usuarios u ON u.id = r.solicitante_id
+           WHERE r.id = %s AND (u.id = %s OR u.criado_por = %s)""",
+        (req_id, admin_id, admin_id), fetchone=True
+    )
+    if not req:
+        return False, f"Não achei a requisição #{req_id} na sua equipe."
+    if req["status"] != "Pendente":
+        return False, "Esta requisição já foi avaliada."
+
+    if acao == "recusar":
+        db.query("UPDATE requisicoes SET status = 'Recusado' WHERE id = %s AND status = 'Pendente'",
+                 (req_id,), commit=True)
+        registrar_log(f"Requisição #{req_id} marcada como Recusado.")
+        return True, f"Requisição #{req_id} recusada."
+
+    pecas = db.query(
+        "SELECT id, codigo, descricao, quantidade FROM pecas WHERE criado_por = %s", (admin_id,)
+    )
+    itens = extrair_itens_do_pedido(req["item_pedido"], pecas)
+
+    conn = db.get_db()
+    try:
+        conn.start_transaction()
+        cur = conn.cursor()
+        for item in itens:
+            cur.execute(
+                "UPDATE pecas SET quantidade = quantidade - %s "
+                "WHERE id = %s AND criado_por = %s AND quantidade >= %s",
+                (item["quantidade"], item["peca_id"], admin_id, item["quantidade"])
+            )
+            if cur.rowcount != 1:
+                conn.rollback()
+                cur.close()
+                return False, f"Estoque insuficiente de '{item['descricao']}' para aprovar esta requisição."
+            cur.execute(
+                "INSERT INTO movimentacoes (peca_id, destino, status) VALUES (%s, %s, 'Concluído')",
+                (item["peca_id"], f"{item['quantidade']}x - Requisição #{req_id}")
+            )
+        cur.execute("UPDATE requisicoes SET status = 'Aprovado' WHERE id = %s AND status = 'Pendente'", (req_id,))
+        if cur.rowcount != 1:
+            conn.rollback()
+            cur.close()
+            return False, "Esta requisição já foi avaliada."
+        conn.commit()
+        cur.close()
+    except Exception:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        raise
+    finally:
+        db.release(conn)
+
+    registrar_log(f"Requisição #{req_id} marcada como Aprovado.")
+    baixas = ", ".join(f"-{i['quantidade']} {i['descricao']}" for i in itens)
+    return True, f"Requisição #{req_id} aprovada." + (f" Estoque atualizado: {baixas}." if baixas else "")
+
 @app.route("/requisicoes/<int:req_id>/<acao>", methods=["POST"])
 @admin_required
 def requisicoes_avaliar(req_id, acao):
-    admin_id = admin_scope_id()
-    requisicao = db.query(
-        "SELECT * FROM requisicoes WHERE id = %s", (req_id,), fetchone=True
-    )
-    if not requisicao or requisicao["status"] != "Pendente":
-        flash("Esta requisição já foi avaliada.")
-        return redirect(url_for("requisicoes"))
-
-    if acao == "aprovar":
-        pecas = db.query(
-            "SELECT id, codigo, descricao, quantidade FROM pecas WHERE criado_por = %s",
-            (admin_id,)
-        )
-        itens = extrair_itens_do_pedido(requisicao["item_pedido"], pecas)
-
-        for item in itens:
-            if item["quantidade"] > item["estoque_atual"]:
-                flash(f"Estoque insuficiente de '{item['descricao']}' para aprovar esta requisição.")
-                return redirect(url_for("requisicoes"))
-
-        for item in itens:
-            db.query(
-                "UPDATE pecas SET quantidade = quantidade - %s WHERE id = %s",
-                (item["quantidade"], item["peca_id"]), commit=True
-            )
-            db.query(
-                "INSERT INTO movimentacoes (peca_id, destino, status) VALUES (%s, %s, 'Concluído')",
-                (item["peca_id"], f"{item['quantidade']}x - Requisição #{req_id}"), commit=True
-            )
-
-        novo_status = "Aprovado"
-    else:
-        novo_status = "Recusado"
-
-    db.query(
-        "UPDATE requisicoes SET status = %s WHERE id = %s",
-        (novo_status, req_id), commit=True
-    )
-    registrar_log(f"Requisição #{req_id} marcada como {novo_status}.")
+    if acao not in ("aprovar", "recusar"):
+        abort(404)
+    ok, msg = avaliar_requisicao(req_id, acao, admin_scope_id())
+    flash(msg)
     return redirect(url_for("requisicoes"))
 
 def _nivel_sql(alias):
@@ -896,8 +872,19 @@ def _sql_valor(v):
 @app.route("/backup")
 @admin_required
 def backup():
-    dados = _dados_backup(session["user_id"])
-    contagem = {t: len(dados[t]) for t in TABELAS_BACKUP}
+    admin_id = session["user_id"]
+    linhas = db.query(
+        """SELECT 'usuarios' AS t, COUNT(*) AS n FROM usuarios WHERE id = %s OR criado_por = %s
+           UNION ALL SELECT 'salas', COUNT(*) FROM salas WHERE criado_por = %s
+           UNION ALL SELECT 'pecas', COUNT(*) FROM pecas WHERE criado_por = %s
+           UNION ALL SELECT 'requisicoes', COUNT(*) FROM requisicoes r
+                     JOIN usuarios u ON u.id = r.solicitante_id WHERE u.id = %s OR u.criado_por = %s
+           UNION ALL SELECT 'movimentacoes', COUNT(*) FROM movimentacoes m
+                     JOIN pecas p ON p.id = m.peca_id WHERE p.criado_por = %s""",
+        (admin_id,) * 7
+    )
+    por_tabela = {l["t"]: int(l["n"]) for l in linhas}
+    contagem = {t: por_tabela.get(t, 0) for t in TABELAS_BACKUP}
     return render_template("BACKUP.html", contagem=contagem)
 
 @app.route("/backup/download")
@@ -958,6 +945,7 @@ def backup_restaurar():
         return redirect(url_for("backup"))
 
     conn = db.get_db()
+    conn.start_transaction()
     cur = conn.cursor(dictionary=True)
     resumo = {}
     try:
@@ -1007,10 +995,12 @@ def backup_restaurar():
     except Exception:
         conn.rollback()
         cur.close()
+        db.release(conn)
         app.logger.exception("Falha ao restaurar backup")
         flash("Não foi possível restaurar o backup (nada foi alterado).")
         return redirect(url_for("backup"))
     cur.close()
+    db.release(conn)
 
     registrar_log("Backup restaurado.")
     flash("Backup restaurado: " + ", ".join(f"{v} {k}" for k, v in resumo.items()) + ".")
@@ -1028,6 +1018,7 @@ def chatbot_rota():
         montar_item_pedido=montar_item_pedido,
         registrar_log=registrar_log,
         filtro_logs=filtro_logs,
+        avaliar_requisicao=lambda rid, acao: avaliar_requisicao(rid, acao, admin_scope_id()),
     )
     return jsonify(chatbot.responder(dados.get("text", ""), dados.get("state"), ctx))
 

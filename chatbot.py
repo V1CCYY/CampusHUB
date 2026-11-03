@@ -23,6 +23,7 @@ class Contexto:
     montar_item_pedido: Callable
     registrar_log: Callable
     filtro_logs: Callable
+    avaliar_requisicao: Callable = None
 
 
 TOM = {"Pendente": "aviso", "Aprovado": "ok", "Recusado": "erro"}
@@ -71,13 +72,16 @@ def _chamados(ctx, pendentes=False, meus=False, limite=6):
     return total, linhas
 
 
-def _card_chamado(r):
+def _card_chamado(r, ctx=None):
     linhas = [r["item_pedido"], f"Sala: {r['sala_nome'] or '—'}",
               f"Por {r['solicitante_nome']} em {r['data_solicitacao']:%d/%m/%Y %H:%M}"]
     if r.get("motivo"):
         linhas.append(f"Motivo: {r['motivo']}")
-    return {"titulo": f"Chamado #{r['id']}", "badge": {"texto": r["status"], "tom": TOM.get(r["status"], "aviso")},
+    card = {"titulo": f"Chamado #{r['id']}", "badge": {"texto": r["status"], "tom": TOM.get(r["status"], "aviso")},
             "linhas": linhas, "href": url_for("requisicoes")}
+    if ctx is not None and ctx.eh_admin and r["status"] == "Pendente":
+        card["acoes"] = [_opt("Aprovar", f"cmd:aprovar:{r['id']}"), _opt("Recusar", f"cmd:recusar:{r['id']}")]
+    return card
 
 
 def _mostrar_chamados(ctx, pendentes=False, meus=False):
@@ -89,7 +93,7 @@ def _mostrar_chamados(ctx, pendentes=False, meus=False):
     ops = [_opt("Nova requisição", "cmd:nova")]
     if not pendentes:
         ops.insert(0, _opt("Só pendentes", "cmd:pendentes"))
-    return _resp(f"Encontrei {total} chamado(s) {tipo}.{extra}", cards=[_card_chamado(r) for r in linhas],
+    return _resp(f"Encontrei {total} chamado(s) {tipo}.{extra}", cards=[_card_chamado(r, ctx) for r in linhas],
                  options=ops, links=[{"label": "Abrir Requisições", "href": url_for("requisicoes")}])
 
 
@@ -103,7 +107,7 @@ def _detalhe_chamado(ctx, req_id):
         (req_id, ctx.admin_id, ctx.admin_id), fetchone=True)
     if not r:
         return _resp(f"Não achei o chamado #{req_id} na sua equipe.", options=[_opt("Ver chamados", "cmd:chamados")])
-    return _resp(f"Aqui está o chamado #{req_id}:", cards=[_card_chamado(r)])
+    return _resp(f"Aqui está o chamado #{req_id}:", cards=[_card_chamado(r, ctx)])
 
 
 def _buscar_pecas(ctx, termo, so_estoque=False):
@@ -305,8 +309,9 @@ def _fluxo(ctx, texto, e):
         novo_id = db.query("INSERT INTO requisicoes (solicitante_id, sala_id, item_pedido, motivo) VALUES (%s, %s, %s, %s)",
                            (ctx.user_id, s["id"], pedido, e["motivo"]), commit=True)
         ctx.registrar_log(f"Requisição de '{pedido}' criada (via CampusBot).")
-        return _resp(f"Pronto! Chamado #{novo_id} criado e aguardando avaliação.",
-                     options=[_opt("Ver chamados", "cmd:chamados")])
+        return _resp(f"Pronto! Chamado #{novo_id} criado e aguardando avaliação. Ele já aparece na tela Requisições.",
+                     options=[_opt("Ver chamados", "cmd:chamados")],
+                     links=[{"label": "Abrir Requisições", "href": url_for("requisicoes")}])
 
     return _menu(ctx, "Não consegui continuar a requisição. O que deseja fazer?")
 
@@ -327,6 +332,14 @@ def responder(texto, estado, ctx):
     if norm in ("cmd:inicio", ""):
         return _menu(ctx, f"Olá, {ctx.nome.split(' ')[0] or 'tudo bem'}! Sou o CampusBot. Posso mostrar chamados, "
                           "abrir uma requisição, consultar estoque e salas.")
+
+    m_av = re.fullmatch(r"cmd:(aprovar|recusar):(\d+)", norm)
+    if m_av:
+        if not ctx.eh_admin or ctx.avaliar_requisicao is None:
+            return _menu(ctx, "Só o administrador pode aprovar ou recusar requisições.")
+        ok, msg = ctx.avaliar_requisicao(int(m_av.group(2)), m_av.group(1))
+        return _resp(msg, options=[_opt("Só pendentes", "cmd:pendentes"), _opt("Ver chamados", "cmd:chamados")],
+                     links=[{"label": "Abrir Requisições", "href": url_for("requisicoes")}])
 
     globais = ("cmd:chamados", "cmd:pendentes", "cmd:nova", "cmd:estoque", "cmd:salas", "cmd:logs", "menu", "ajuda")
     if e and e.get("flow") == "req" and norm not in globais:

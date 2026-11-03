@@ -1,7 +1,10 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["iad1"],
   "functions": {
     "app.py": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "excludeFiles": "{public/**,Documentos/**,.venv/**,certs/**}"
     }
   }
 }
